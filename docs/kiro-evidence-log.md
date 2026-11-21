@@ -403,6 +403,33 @@ reset (as of the 12:22 snapshot; later sessions draw further).
   working from `/tmp` with absolute paths; the `cwd` field
   itself has not been exercised through an MCP client yet.
 
+### 2026-11-21 — GitHub repo created; push BLOCKED on token scope (DIRECT)
+- Repo created public via `gh repo create` (direct, not Kiro):
+  https://github.com/dd8173569/haunted-gift-atelier. It is
+  currently EMPTY — no push has landed yet.
+- Local `main` is ready: commit `0bd760b` (48 files, +6046/−51)
+  plus this log entry; remote `origin` set to the repo URL.
+- The push was REJECTED by GitHub: the `gh` token has scopes
+  `gist`, `read:org`, `repo` but NOT `workflow`, and GitHub
+  refuses OAuth App tokens without the `workflow` scope from
+  creating or updating `.github/workflows/ci.yml` (the file is
+  in the history since the scaffold commit `2035e64`, so every
+  push of this history is blocked). No history rewrite was
+  attempted — removing the workflow file would falsify the
+  commit references in this log and lose CI.
+- Two `gh auth refresh -h github.com -s workflow` device-flow
+  attempts were started (one-time codes `03BC-7366` and
+  `C9E1-10F1`, via https://github.com/login/device); both
+  timed out after 15 minutes without the builder completing
+  the authorization. The codes are expired and dead.
+- TO FINISH THE PUSH: the builder completes ONE device
+  authorization (run `gh auth refresh -h github.com -s
+  workflow` fresh, hand him the new code, he enters it at
+  github.com/login/device as dd8173569), verify with `gh auth
+  status` that `workflow` is listed, then run `git push -u
+  origin main` from the repo root. The push itself is then a
+  two-minute job; CI will run on the push.
+
 ## Counts (running totals)
 
 | Metric | Count |
