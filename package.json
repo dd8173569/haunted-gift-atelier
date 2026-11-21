@@ -28,7 +28,9 @@
     "packages/*"
   ],
   "scripts": {
+    "prebuild": "npm run validate-catalog",
     "build": "next build",
+    "coverage": "vitest run --coverage",
     "dev": "next dev",
     "lint": "eslint",
     "start": "next start",

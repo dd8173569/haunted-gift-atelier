@@ -7,8 +7,8 @@ inclusion: always
 ```
 haunted-gift-atelier/
 ├── .kiro/                    specs/, steering/, hooks/, agents/, settings/mcp.json (never gitignored)
-├── .github/workflows/ci.yml  lint + typecheck + test + validate-catalog
-├── app/                      routes only: page.tsx, find/, picks/, piece/[sku]/, atelier/, about/, api/chat/ (M5, optional)
+├── .github/workflows/ci.yml  NOT PRESENT (token lacks workflow scope; CI unfinished — M1, add via web UI or token refresh; not a submission requirement)
+├── app/                      routes only: page.tsx, find/, picks/, piece/[sku]/, atelier/, about/; fallbacks error.tsx, global-error.tsx, not-found.tsx, loading.tsx (M5 reliability); NO api/chat/ — the optional Gemini layer is UNBUILT in M5 (no key)
 ├── components/               React components, PascalCase.tsx (PickCard, SafetyVerdict, TrueSizeViewer, GiftWrap,
 │                             CalibrationSlider, SizeOutlines, SizeRuler, PieceFacts, CatalogGrid, PriceFootnote, ProductPhoto, AtelierButton,
 │                             SiteHeader, SkipLink, ActionButton, CobwebCorner)
@@ -23,8 +23,9 @@ haunted-gift-atelier/
 ├── public/catalog/           22 exact product photos named <SKU>.png|jpeg (never edited)
 ├── scripts/                  validate-catalog.ts (CI + save hook)
 ├── tests/                    *.test.ts(x): unit, golden, property, component; a11y.* (axe, keyboard, contrast, static, targets),
-│                             page-meta.* (titles/descriptions), polish.* (components, copy); tests/helpers/ (axe, contrast, targets,
-│                             outline, pages, conversation-actions, source-scan)
+│                             page-meta.* (titles/descriptions), polish.* (components, copy), reliability.* (static, fallbacks, routes, sweeps,
+│                             catalog-failure), money.property; tests/helpers/ (axe, contrast, targets,
+│                             outline, pages, conversation-actions, source-scan, route-arbitrary, browse-reference)
 ├── docs/                     kiro-evidence-log.md, qa-reports/
 ├── LICENSE (MIT), README.md
 ```
@@ -35,7 +36,7 @@ haunted-gift-atelier/
 - Test files sit in `tests/`, named after what they test: `matching.golden.test.ts`, `matching.property.test.ts`, `catalog.test.ts`.
 - One concept per file. Specs map to code: `catalog-data` → `lib/catalog.ts` + `data/` + `scripts/`; `matching-core` → `lib/matching.ts` + `lib/matching/`; `safety-verdict` → `lib/safety.ts` + `lib/safety-rules.ts` + `lib/safety-materials.ts` + `lib/safety-weight.ts` + `data/safety-rules.md`; `true-size-viewer` → `lib/true-size.ts` + `lib/size-spec.ts`; `gift-presentation` → `lib/gift-message.ts` + `lib/piece-view.ts` + `app/piece/[sku]/`; `conversation` → `lib/conversation.ts`.
 - Design tokens (colour, spacing, type) live in one Tailwind config location. Components consume tokens only.
-- Specs map to code (continued): `polish-deploy` → `lib/page-meta.ts` + `components/SiteHeader.tsx`, `SkipLink.tsx`, `ActionButton.tsx`, `CobwebCorner.tsx`.
+- Specs map to code (continued): `polish-deploy` → `lib/page-meta.ts` + `components/SiteHeader.tsx`, `SkipLink.tsx`, `ActionButton.tsx`, `CobwebCorner.tsx`; `reliability` → `app/error.tsx`, `app/global-error.tsx`, `app/not-found.tsx`, `app/loading.tsx` + `tests/reliability.*`, `tests/money.property.test.ts` + `docs/qa-reports/reliability-m5.md`.
 
 ## Where data lives
 
