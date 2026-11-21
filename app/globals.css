@@ -44,3 +44,62 @@
 .mote {
   animation: mote-drift 9s ease-in-out infinite;
 }
+
+/* Gift wrap reveal (gift-presentation design §5.3). Transform and opacity only, no colour.
+   The box animations end at 2.4 s (WRAP_REVEAL_MS); the card fades in over the next 0.4 s
+   (CARD_FADE_MS). tests/gift-presentation.static.test.ts keeps these in step with lib/gift-message.ts. */
+@keyframes wrap-ribbon {
+  to {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+
+@keyframes wrap-lid {
+  to {
+    transform: translateY(-70%) rotate(-5deg);
+    opacity: 0;
+  }
+}
+
+@keyframes wrap-box-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes wrap-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.wrap-ribbon {
+  animation: wrap-ribbon 800ms ease-in 0ms forwards;
+}
+
+.wrap-lid {
+  animation: wrap-lid 1400ms ease-in-out 600ms forwards;
+}
+
+.wrap-box-out {
+  animation: wrap-box-out 400ms ease-out 2000ms forwards;
+}
+
+.wrap-card-in {
+  animation: wrap-card-in 400ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrap-ribbon,
+  .wrap-lid,
+  .wrap-box-out,
+  .wrap-card-in {
+    animation: none;
+  }
+}

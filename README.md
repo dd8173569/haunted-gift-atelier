@@ -1,8 +1,9 @@
 # Haunted Gift Atelier
 
 A haunted-gift-atelier experience that finds the right baby-jewelry gift by
-conversation — then proves it's safe, shows it true to size, and wraps it
-beautifully. Built for **Kiroween 2026** (AWS Kiro hackathon, Devpost).
+conversation — then gives it a plain-language fit check, shows it at a size
+you calibrate, and wraps it beautifully. Built for **Kiroween 2026** (AWS Kiro
+hackathon, Devpost).
 
 The catalog is real: 22 pieces from [Tiny Tiaraa](https://www.tinytiaraa.com)
 (prices as listed on 21 Nov 2026), with exact product photos, deterministic

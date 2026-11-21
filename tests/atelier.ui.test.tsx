@@ -51,7 +51,8 @@ describe("/atelier grid, no filter", () => {
     const card = oos[0];
     expect(card.dataset.sku).toBe("TNZ-1058");
     expect(card.querySelector('a[href^="https://www.tinytiaraa.com"]')).toBeNull();
-    expect(card.querySelector("a")).toBeNull();
+    // REQ-GP-11 supersedes "no link at all": the only link is the "See details" navigation.
+    expect(Array.from(card.querySelectorAll("a")).map((a) => a.getAttribute("href"))).toEqual(["/piece/TNZ-1058"]);
     expect(card.querySelector("button")).toBeNull();
     expect(card.textContent).not.toContain(BUY);
     expect(card.className).toContain("bg-plum/5");
@@ -198,13 +199,17 @@ describe("P-CV-11 render part", () => {
     const check = () => {
       const oos = container.querySelector<HTMLElement>('article[data-sku="TNZ-1058"]');
       if (oos) {
-        expect(oos.querySelector("a")).toBeNull();
+        // REQ-GP-11: "See details" only; no buy control (REQ-CV-38).
+        expect(Array.from(oos.querySelectorAll("a")).map((a) => a.getAttribute("href"))).toEqual([
+          "/piece/TNZ-1058",
+        ]);
         expect(oos.textContent).not.toContain(BUY);
       }
       for (const a of cards(container)) {
         const sku = a.dataset.sku;
         const p = catalog.products.find((x) => x.sku === sku)!;
-        expect(a.querySelectorAll("a").length).toBe(p.availability === "In Stock" ? 1 : 0);
+        // "See details" on every card (REQ-GP-11), plus the buy link on in-stock cards.
+        expect(a.querySelectorAll("a").length).toBe(p.availability === "In Stock" ? 2 : 1);
       }
       checked++;
     };

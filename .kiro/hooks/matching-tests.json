@@ -3,9 +3,9 @@
   "hooks": [
     {
       "name": "matching-tests",
-      "description": "On save of lib/matching.ts, a file under lib/matching/, or lib/safety.ts, run the matching and safety test files (golden, property, unit). No --passWithNoTests: if the files are missing the run fails loudly.",
+      "description": "On save of lib/matching.ts, a file under lib/matching/, or lib/safety.ts / lib/safety-*.ts, run the matching and safety test files (golden, property, unit). No --passWithNoTests: if the files are missing the run fails loudly.",
       "trigger": "PostFileSave",
-      "matcher": "(^|/)lib/(matching(/[^/]+)?|safety)\\.ts$",
+      "matcher": "(^|/)lib/(matching(/[^/]+)?|safety(-[a-z]+)?)\\.ts$",
       "action": {
         "type": "command",
         "command": "npx vitest run tests/matching tests/safety 1>&2 || { echo 'MATCHING/SAFETY TESTS FAILED: fix the code or raise a spec change; never loosen a golden case.' >&2; exit 1; }"

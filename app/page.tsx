@@ -83,8 +83,8 @@ export default function Home() {
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-plum/80">
               Buying baby jewelry online? You can&rsquo;t tell how big it is —
-              or if it&rsquo;s safe. Three taps, and the atelier finds the
-              piece — then proves it.
+              or whether it suits the little one. Three taps, and the atelier
+              finds the piece, then gives you a plain-language fit check.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
@@ -132,8 +132,9 @@ export default function Home() {
                 Check it, see it, wrap it
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-plum/75">
-                A plain-language safety check and a true-size view on every
-                pick — then a gift wrap and a message.
+                A plain-language fit check and a size view you calibrate to
+                your screen, on every piece&rsquo;s page — then a gift wrap and
+                a message.
               </p>
             </div>
           </div>

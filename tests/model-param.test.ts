@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { MAX_PARAM_LENGTH, MODEL_PARAM, encodeModelParam, modelHref, parseModelParam } from "../lib/model-param";
+import {
+  MAX_PARAM_LENGTH,
+  MODEL_PARAM,
+  encodeModelParam,
+  modelHref,
+  parseModelParam,
+  pieceHref,
+} from "../lib/model-param";
 import { toModel } from "../lib/conversation";
 import { GOLDEN1_TAPS, GOLDEN2_TAPS, GOLDEN3_TAPS, run } from "./helpers/conversation-taps";
 
@@ -72,5 +79,22 @@ describe("model transport", () => {
   it("never throws on a non-string value", () => {
     expect(parseModelParam(5 as never).status).toBe("invalid");
     expect(parseModelParam(null as never).status).toBe("invalid");
+  });
+});
+
+describe("pieceHref", () => {
+  it("without a model is the bare path", () => {
+    expect(pieceHref("TBZ-1013")).toBe("/piece/TBZ-1013");
+  });
+  it("with a model carries m, which parses back to the model", () => {
+    const href = pieceHref("TBZ-1013", G1);
+    expect(href.startsWith("/piece/TBZ-1013?m=%7B%22relationship%22")).toBe(true);
+    expect(href).not.toContain("{");
+    const q = new URLSearchParams(href.split("?")[1]);
+    expect(q.get("m")).toBe(G1_JSON);
+    expect(parseModelParam(q.get("m") ?? undefined)).toEqual({ status: "ok", model: G1 });
+  });
+  it("percent-encodes an odd SKU in the path", () => {
+    expect(pieceHref("A B/1")).toBe("/piece/A%20B%2F1");
   });
 });

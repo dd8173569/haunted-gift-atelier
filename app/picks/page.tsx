@@ -6,7 +6,7 @@ import PickCard from "../../components/PickCard";
 import { describeModel, momSkipNote } from "../../lib/conversation";
 import { catalog } from "../../lib/catalog-store";
 import { match } from "../../lib/matching";
-import { modelHref, parseModelParam } from "../../lib/model-param";
+import { modelHref, parseModelParam, pieceHref } from "../../lib/model-param";
 import { toPickViews } from "../../lib/picks-view";
 
 /* /picks — the picks for the confirmed model (PRD §1 step 4).
@@ -46,7 +46,7 @@ export default async function PicksPage({
         {views.length > 0 && (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {views.map((v) => (
-              <PickCard key={v.sku} view={v} />
+              <PickCard key={v.sku} view={v} detailHref={pieceHref(v.sku, model)} />
             ))}
           </div>
         )}

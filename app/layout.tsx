@@ -17,7 +17,7 @@ const sans = Inter({
 export const metadata: Metadata = {
   title: "Haunted Gift Atelier — Tiny Tiaraa",
   description:
-    "Find the right baby-jewelry gift by conversation — then prove it's safe, see it true to size, and wrap it beautifully. Real catalog: Tiny Tiaraa.",
+    "Find the right baby-jewelry gift by conversation — then get a plain-language fit check, see it at a size you calibrate, and wrap it beautifully. Real catalog: Tiny Tiaraa.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

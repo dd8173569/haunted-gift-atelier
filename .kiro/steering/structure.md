@@ -10,8 +10,11 @@ haunted-gift-atelier/
 ├── .github/workflows/ci.yml  lint + typecheck + test + validate-catalog
 ├── app/                      routes only: page.tsx, find/, picks/, piece/[sku]/, atelier/, about/, api/chat/ (M5, optional)
 ├── components/               React components, PascalCase.tsx (PickCard, SafetyVerdict, TrueSizeViewer, GiftWrap,
-│                             CalibrationSlider, CatalogGrid, PriceFootnote, ProductPhoto, AtelierButton)
-├── lib/                      pure logic, kebab-case.ts: catalog.ts, matching.ts, safety.ts, true-size.ts, conversation.ts,
+│                             CalibrationSlider, SizeOutlines, SizeRuler, PieceFacts, CatalogGrid, PriceFootnote, ProductPhoto, AtelierButton)
+│                             + useCalibration.ts (calibration store hook)
+├── lib/                      pure logic, kebab-case.ts: catalog.ts, matching.ts, safety.ts, safety-rules.ts,
+│                             safety-materials.ts, safety-weight.ts, true-size.ts, size-spec.ts,
+│                             gift-message.ts, piece-view.ts, conversation.ts,
 │                             model-param.ts, picks-view.ts, browse.ts, catalog-store.ts (parsed catalog for server pages)
 │   └── matching/             pipeline stages used by matching.ts (age, filters, scoring, rank, relax, explain, templates, types)
 ├── data/                     catalog.json, catalog-changelog.md, product-tags.ts, occasion-map.ts, safety-rules.md
@@ -27,7 +30,7 @@ haunted-gift-atelier/
 
 - `app/` holds routes and layout only. Logic goes in `lib/`, UI in `components/`.
 - Test files sit in `tests/`, named after what they test: `matching.golden.test.ts`, `matching.property.test.ts`, `catalog.test.ts`.
-- One concept per file. Specs map to code: `catalog-data` → `lib/catalog.ts` + `data/` + `scripts/`; `matching-core` → `lib/matching.ts` + `lib/matching/`; `safety-verdict` → `lib/safety.ts`; `true-size-viewer` → `lib/true-size.ts`; `conversation` → `lib/conversation.ts`.
+- One concept per file. Specs map to code: `catalog-data` → `lib/catalog.ts` + `data/` + `scripts/`; `matching-core` → `lib/matching.ts` + `lib/matching/`; `safety-verdict` → `lib/safety.ts` + `lib/safety-rules.ts` + `lib/safety-materials.ts` + `lib/safety-weight.ts` + `data/safety-rules.md`; `true-size-viewer` → `lib/true-size.ts` + `lib/size-spec.ts`; `gift-presentation` → `lib/gift-message.ts` + `lib/piece-view.ts` + `app/piece/[sku]/`; `conversation` → `lib/conversation.ts`.
 - Design tokens (colour, spacing, type) live in one Tailwind config location. Components consume tokens only.
 
 ## Where data lives

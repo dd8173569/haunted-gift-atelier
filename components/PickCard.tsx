@@ -5,8 +5,9 @@ import PriceFootnote from "./PriceFootnote";
 import ProductPhoto from "./ProductPhoto";
 
 /* One pick: a price region (REQ-CV-28). Receives a PickView, never reads the catalog.
-   No link to /piece/[sku] in this milestone (REQ-CV-33). */
-export default function PickCard({ view }: { view: PickView }) {
+   "See details" is a navigation link to /piece/[sku], passed in by /picks (REQ-GP-10, which
+   supersedes the M2 ban of REQ-CV-33). It is optional so a card can render without it. */
+export default function PickCard({ view, detailHref }: { view: PickView; detailHref?: string }) {
   return (
     <article data-price-region className="flex flex-col gap-3 rounded-3xl bg-blush/50 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
@@ -35,7 +36,12 @@ export default function PickCard({ view }: { view: PickView }) {
           <li key={r}>{r}</li>
         ))}
       </ul>
-      <div className="mt-auto pt-2">
+      <div className="mt-auto flex flex-col gap-2 pt-2">
+        {detailHref !== undefined && (
+          <AtelierButton href={detailHref} variant="secondary">
+            See details
+          </AtelierButton>
+        )}
         <AtelierButton href={view.url} external>
           Buy on Tiny Tiaraa ↗
         </AtelierButton>

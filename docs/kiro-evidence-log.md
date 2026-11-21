@@ -702,15 +702,311 @@ reset (as of the 12:22 snapshot; later sessions draw further).
   the 12:22 IST snapshot (~284 plan credits + 500 bonus, reset
   1 Dec) stands.
 
+## Milestone 3 (21 Nov 2026)
+
+### 2026-11-21 — Session 7: Milestone 3 specs (Kiro, non-interactive) — COMPLETED
+- Task: write the three M3 specs (safety-verdict, true-size-viewer,
+  gift-presentation), requirements/design/tasks each, from PRD §1/§5/§6 +
+  architecture §7/§8 + the M1/M2 specs. No application code. Exit 0 in
+  ~18.5 min. Files (lines): safety-verdict requirements 166, design 387,
+  tasks 51; true-size-viewer requirements 148, design 297, tasks 47;
+  gift-presentation requirements 149, design 347, tasks 101.
+- Grounded decisions recorded in the specs (verified by the coordinator
+  against data/catalog.json): `claims[]` empty for all 22 SKUs; TNZ-1056
+  weight "5.50-6.50 gross gms approx" → weight_g 6.0 (the PRD §5 example
+  "7.0 g" is a PRD error); weight medians infants 1.51 / kids 1.23 /
+  teens 0.86 / mom n=2 (no flags); check-6 not-stated rows are `note`
+  severity, not flags (deviation from PRD §5, REQ-SV-20 — otherwise every
+  piece would be "Check this"); photo-in-box only when short side ≥ 6 mm
+  and aspect ≤ 2.5 (4 SKUs); gold-pendant "width" 1.3–2.2 mm is not a face
+  width, captions name height only; TNZ-1056 ring Ø = 133.4/π = 42.4625 mm
+  (tasks.md's 42.4635 is a rounding slip, caught in session 9);
+  /piece/NOPE-0000 may return 200 + noindex under the root Suspense
+  (same behaviour as M2 OQ-1, recorded as Q15); Copy message added
+  (clipboard only); `design_application_no` and `sku_extra` stay off the
+  detail page (the first could read as a certification).
+- 22 open questions/assumptions (Q1–Q9 safety, Q10–Q14 true-size,
+  Q15–Q22 gift) recorded in the three design documents for the Tue 24 Nov
+  checkpoint. Physical ±5% accuracy and the 15-second calibration can only
+  be checked by a human with a card and a ruler (manual QA wave in
+  gift-presentation).
+
+### 2026-11-21 — Session 8: safety-verdict Waves 1–4 (Kiro, non-interactive) — COMPLETED
+- Task: implement `.kiro/specs/safety-verdict/tasks.md` Waves 1–4 in order
+  (each wave's checks green before the next), plus T4.4 (hook matcher,
+  approved). Files written (lines): data/safety-rules.md (98),
+  lib/safety-rules.ts (130), lib/safety-materials.ts (50),
+  lib/safety-weight.ts (80), lib/safety.ts (293),
+  components/SafetyVerdict.tsx (88), tests/safety.rules.test.ts (86),
+  safety.materials (111), safety.weight (186), safety.test (303),
+  safety.property (290), safety.static (79), safety.ui.test.tsx (142),
+  safety.copy (51). Edited: app/page.tsx, app/layout.tsx, README.md,
+  .kiro/hooks/matching-tests.json. Not touched: lib/matching*, lib/catalog.ts,
+  data/catalog.json, data/*.ts, any existing test.
+- Tests: 190 new (rules 22, materials 13, weight 26, verdict 37, property 9,
+  static 46, ui 13, copy 24); `npm test` 645 passing in 30 files (455 before).
+  Property tests (seeded 20261124, 300 runs each) found NO counterexample.
+  Coverage of lib/safety*.ts: 100% lines/branches; no `coverage/` left.
+  typecheck clean; lint only the known mcp-catalog warning.
+- Real pools re-derived in tests with a naive median: infants n=18 / 1.51 g,
+  kids 15 / 1.23, teens 9 / 0.86, mom 2 / none. Flag lists of REQ-SV-16 and
+  the Good fit lists of design §5.1 match exactly. TNZ-1056 = 6.0 g (midpoint
+  of 5.50–6.50), flagged for infants. The PRD §5 example "7.0 g" is a PRD error.
+- M2 OQ-2 RESOLVED: decided by the PRD §5 framing ("a fit check, not a
+  certification"); landing copy aligned. Changed: app/page.tsx hero paragraph
+  (3 lines) and step-3 body (3 lines), app/layout.tsx metadata description
+  (1 line), README.md lines 3–6. "Safety notes are fit checks, not
+  certifications." unchanged. tests/safety.copy.test.ts fails on "safe",
+  "unsafe", "prove it", "proves it" in app/**/*.tsx, components/**/*.tsx,
+  lib/safety*.ts, README.md.
+- Dev-server check (port 3113, killed, log removed): old wording 0 matches,
+  "plain-language fit check" 1, trust-strip sentence 1, whole-word safe/unsafe
+  in the page 0.
+- T4.4 hook matcher widened to
+  `(^|/)lib/(matching(/[^/]+)?|safety(-[a-z]+)?)\.ts$` (description updated).
+  Checked by regex against lib/safety.ts, safety-materials/weight/rules.ts
+  (match) and lib/safety-1.ts, lib/safetyx.ts (no match). Firing in the
+  CLI/IDE is still unobserved.
+- Spec questions raised while implementing (closest faithful alternative
+  taken; none changes behaviour the spec pins):
+  - S1: REQ-SV-17 says the certifications row cites SR-CLAIMS-ONLY, REQ-SV-24
+    says a catalog-grounded certifications row carries no "General guidance"
+    label. The card shows the rule's sentence there as plain text, no label.
+  - S2: the injected-rules test (T3.1) needs a rules argument, so
+    `computeVerdict(product, catalog, band, rules = SAFETY_RULES)` and
+    `ruleById(id, rules = SAFETY_RULES)` take an optional last parameter.
+  - S3: T3.3's component checks cannot run in Wave 3 (the file lands in
+    Wave 4). They are `describe.skipIf(file missing)`, and run now.
+  - S4: the REQ-SV-14 template prints "…for infants 0–3 years pieces here…"
+    because `AGE_GROUP_LABEL` is a noun phrase. Kept literal.
+  - S5: not-stated rows with no mention cite the rule plus the four fields
+    searched; rows that quote a field cite the field and the rule and carry no
+    guidance text (the rule sentence says "not stated", which would contradict
+    the quote). Property V3 exempts these rows from "rule text appears in
+    guidance".
+  - S6: several `claims` are joined into the row's `text` with newlines, one
+    "Stated on this product's page: …" line each (none exist in v1.0.0).
+- Open questions Q1–Q9 of safety-verdict design §10, for the Tue 24 Nov
+  checkpoint: Q1 not-stated rows are `note`, so they never flip the verdict
+  (PRD §5 deviation, REQ-SV-20); Q2 with no recipient the weight reference is
+  the youngest listed band; Q3 one median per band across all categories
+  (teens: 0.86 g, three 1.5 g earrings flag; mom pool 2, never flags); Q4
+  listed weights are not like for like, and TPN-1459 / TPN-1433 also state
+  "weight approx 2.5-3 gms" in `chain`; Q5 rules live in both
+  data/safety-rules.md and lib/safety-rules.ts, kept equal by a test; Q6
+  standalone earrings (THP-1001, THP-1027) get no small-parts note; Q7 the
+  PRD's "0.8 g — light for everyday wear" is replaced by the median text; Q8
+  the copy task also rewords the step-3 line, the hero's "then proves it", and
+  README line 4; Q9 with no recipient the card can still say Good fit.
+
+### 2026-11-21 — Session 9: true-size-viewer Waves 1–4 (Kiro, non-interactive) — COMPLETED
+- Task: implement `.kiro/specs/true-size-viewer/tasks.md` Waves 1–4 in order
+  (each wave's checks green before the next). Files written (lines):
+  lib/true-size.ts (126), lib/size-spec.ts (187),
+  components/useCalibration.ts (81), CalibrationSlider.tsx (82),
+  SizeOutlines.tsx (141), SizeRuler.tsx (188), TrueSizeViewer.tsx (81),
+  tests/true-size.test.ts (192), true-size.property (142),
+  size-spec.test (187), size-spec.property (185), true-size.ui.test.tsx (642),
+  true-size.static (110), docs/qa-reports/true-size-m3.md (105). Not touched:
+  lib/matching*, lib/catalog.ts, data/catalog.json, data/*.ts, any existing
+  test, .kiro/steering/structure.md, the counts table, ci.yml.
+- Tests: 166 new (true-size 19, size-spec 17, true-size.property 7,
+  size-spec.property 11, ui 48, static 64). `npm test` 815 passing in 36 files
+  (645 in 30 before). The 4 extra beyond the 166 are per-file cases that
+  tests/safety.copy.test.ts generates for the 4 new `.tsx` components; its
+  expectations are unchanged and they pass (no "safe"/"unsafe" in the new UI).
+  Per wave: Wave 1 699 / 34 files, Wave 2 735 / 35, Wave 3 815 / 36.
+  Coverage of lib/true-size.ts and lib/size-spec.ts: 100% lines, branches,
+  functions; no `coverage/` left. typecheck clean; lint only the known
+  mcp-catalog warning.
+- Property tests (seeded 20261124, 300 runs; P-TS-1 600, P-TS-4 parse 500,
+  P-TS-8 500) found NO counterexample. Two boundary defects were found by unit
+  tests before the property suite ran green and were fixed in the
+  implementation (tests not loosened), see S1 and S4. The out-of-range
+  generator of P-TS-2 was moved 0.5 px outward to match the S1 fix.
+- Photo-in-box rule, pinned against the real catalog: exactly TPN-1459,
+  TPN-1433, TBZ-1013, TBZ-1017 get the photo in the box; the 9 thin single
+  pieces get an empty outline; sets never. Captions are byte-for-byte per spec.
+- Wording rule: in approximate and stale modes the viewer's text contains
+  "true size" exactly once (the REQ-TS-11 label) for all 22 products, and no
+  aria-label, alt, or title contains it (P-TS-11 plus attribute scan). The
+  static test also pins that the only string literal with "true size" in the
+  components is that label.
+- Spec questions raised while implementing (closest faithful alternative
+  taken; the first two need a spec edit):
+  - S1: REQ-TS-05 sets the slider to 171–856 px, but 171 ÷ 85.6 = 1.9977,
+    below MIN_FACTOR 2 (REQ-TS-02 rejects it); 856 ÷ 85.6 is 10 only up to
+    float error. 171 and 856 are whole-pixel roundings of 171.2 and 856.
+    `factorFromCardPx` now accepts up to half a pixel outside the range and
+    clamps the factor into [2, 10]; further out is still rejected.
+    Regression test in tests/true-size.test.ts.
+  - S2: tasks.md T2 quotes the TNZ-1056 ring as 42.4635 mm; 133.4 ÷ π is
+    42.4625. At factor 5 that is 212.31 px, inside the spec's 0.01 tolerance of
+    212.32, so the tests compare against `133.4 / Math.PI`.
+  - S3: jsdom's CSS layer rounds inline `style` lengths to about 3 decimals,
+    so style-based tests of non-integer px compare to 2 decimals; SVG
+    attributes (width, height) are compared to 9 decimals. The code passes the
+    unrounded number.
+  - S4: REQ-TS-10 "more than 0.02" and a float: |2 − 2.02| is
+    0.02000000000000002. `isStale` adds 1e-9 so exactly 0.02 is not stale.
+  - S5: T4.1 says the read-only qa-auditor writes the checklist. It was
+    written by this builder session (the checklist is only blank steps and
+    targets); the auditor can still fill it in.
+  - S6: REQ-TS-22 covers null dimensions. `buildSizeSpec` also treats a
+    non-finite or non-positive dimension as not stated (a set with any bad
+    part, a ring with a bad diameter, become `missing`), so 0 and NaN are
+    never drawn (REQ-TS-22, P-TS-9). Real catalog v1.0.0 has none.
+  - S7: the print sheet's labels are neutral ("14.4 × 1.9 mm", "Ø 42.46 mm")
+    and not the screen captions. The sheet is in the DOM on screen, and the
+    calibrated captions say "true size", which would break the wording rule.
+  - S8: the "Photo as listed — shown enlarged, not to scale" label (REQ-TS-17)
+    belongs to the detail page and is on the gift-presentation list; the
+    viewer renders no page photo.
+  - S9: the structure.md update in T4.2 is left to the coordinator, as
+    instructed. It would add lib/size-spec.ts, components/SizeOutlines.tsx,
+    components/SizeRuler.tsx, components/useCalibration.ts.
+- Dev-server and physical-ruler checks were not run: the viewer has no route
+  until gift-presentation. docs/qa-reports/true-size-m3.md is the blank manual
+  checklist with the targets (box 17.7 to 19.5 mm, ring Ø 40.4 to 44.6 mm).
+- Open questions Q10–Q14 of true-size-viewer design §11, for the Tue 24 Nov
+  checkpoint: Q10 the PRD puts the photo in a true-size box for every pendant,
+  earring and tabeez, but 9 of 13 are too thin, so the photo goes in the box
+  only when the short side is ≥ 6 mm and the aspect ≤ 2.5 (4 pieces), and the
+  rest get an empty size outline with the photo at page size "not to scale";
+  Q11 the gold pendants' listed "Width" (1.3–2.2 mm) may be thickness, so the
+  caption names height only and the detail line says "Listed: … wide"; Q12
+  browser zoom invalidates a stored factor, so `dpr` is stored and a change
+  of more than 0.02 gives the stale mode and note (value kept); Q13 the
+  landing page and PRD use "true-size" as a feature name, covered by REQ-TS-12
+  for the viewer and detail page, landing line reworded in safety-verdict;
+  Q14 a bracelet is drawn as a closed circle of the listed circumference (the
+  detail line says so).
+
+### 2026-11-21 — Session 10 (retry): gift-presentation Wave 4 — QA audit + evidence log (Kiro, non-interactive) — COMPLETED
+- Task: T4.4 (QA audit) and T4.5 (this entry) only. Session 10 completed
+  Waves 1–3 and the build, then ended before writing the audit or this entry.
+  Written: docs/qa-reports/gift-presentation-m3.md; "NOT RUN" note for T4.3 in
+  docs/qa-reports/true-size-m3.md; this entry. No application code or test
+  was changed by the retry. The counts table and .kiro/steering/structure.md
+  are the coordinator's and were not edited.
+- Session 10 Waves 1–3, from `git status` (new, lines where counted):
+  app/piece/[sku]/page.tsx (120), app/piece/[sku]/not-found.tsx (27),
+  components/GiftWrap.tsx (195), components/PieceFacts.tsx (23),
+  lib/gift-message.ts (79), lib/piece-view.ts (63),
+  tests/gift-message.test.ts (119), gift-message.property (110),
+  gift-wrap.ui.test.tsx (256), gift-presentation.static (168),
+  piece-view.test (76), piece-view.property (42), piece.links.ui.test.tsx (89),
+  piece.route.test.tsx (181), model-param.property (30),
+  tests/helpers/model-arbitrary.ts (44). Edited: app/globals.css (+59),
+  app/picks/page.tsx, app/page.tsx, app/layout.tsx, components/PickCard.tsx,
+  components/BrowseCard.tsx, lib/model-param.ts (+6, `pieceHref`),
+  tests/model-param.test.ts, tests/atelier.ui.test.tsx, README.md,
+  .kiro/hooks/matching-tests.json. (Also untracked from Sessions 8–9: the
+  safety and true-size files, and the three M3 spec folders.)
+- Tests (coordinator-verified): `npm test` 953 passing in 45 files (815 in 36
+  before gift-presentation). The gift, piece and model-param files alone: 10
+  files, 143 tests, re-run by this session, all passing. typecheck clean; lint
+  only the known mcp-catalog AgeBand warning; validate-catalog OK with the two
+  expected warnings (TNZ-1058, TNZ-1056 width).
+- Property counterexamples: not recorded by session 10; none found by the
+  coordinator's verification run.
+- Build: `npm run build` succeeds (compiled, 30 static pages, /piece/[sku]
+  with all 22 paths, Partial Prerender). This resolves Q19:
+  generateStaticParams + Cache Components + promise params work.
+- T4.1 dev-server numbers (port 3115, coordinator-run, server killed, logs
+  removed): /piece/TNZ-1056 status 200; "Check this" 2; fit-check line 1; "No
+  certifications are stated on this product" 1; no-recipient line 1;
+  approximate label 1; "true size" total 1; "Wrap this gift" 1; buy href 1;
+  "Out of stock" 0. /piece/TBZ-1013 with the golden-1 model: "Listed by Tiny
+  Tiaraa for infants 0–3 years" 1. /piece/TNZ-1058: "Out of stock" 2,
+  tinytiaraa.com/product 0, buy and wrap 0. /piece/NOPE-0000: status 200 (not
+  404; the accepted Q15 fallback: 200 + noindex), "find that piece" 1,
+  "noindex" 1. /picks golden 1: /piece/TBZ-1013, /piece/TNZ-1056,
+  /piece/TBZ-1017 in that order, 0 detail content, 3 buy links. /atelier: 21
+  buy links, 22 "See details" links.
+- Coordinator fix (direct work): the first T4.1 "true size" count was 2, not
+  1, because components/TrueSizeViewer.tsx carried
+  `data-testid="true-size-viewer"`, which matched the grep. Renamed to
+  `size-viewer` (component + 6 references in tests/true-size.ui.test.tsx); 48
+  UI tests pass; all 22 pages count exactly 1 "true size" (the label). The
+  rule's intent was never violated (a test id is not visible text); the
+  spec's grep check now passes as written.
+- T4.3 physical checks (box 18.6 mm ±5%, ring Ø 42.5 mm ±5%, calibration under
+  15 s, 1:1 print sheet; phone and desktop): NOT RUN. No human with a card and
+  ruler in a non-interactive session. Recorded as "not run" in
+  docs/qa-reports/true-size-m3.md; no number fabricated. Needs a human before
+  the REQ-TS-30 claim can be made.
+- QA audit (docs/qa-reports/gift-presentation-m3.md), result PASS, no defect.
+  MCP: `matching_explain` for golden 1 (TBZ-1013, TNZ-1056, TBZ-1017, score 6
+  each, no disclosures) and `catalog_get` for TNZ-1058; the other 21 SKUs
+  checked against data/catalog.json read directly. The real `PiecePage` was
+  rendered for all 22 SKUs by a temporary script (deleted): buy href equals
+  the catalog url on all 21 in-stock pages (incl. percent-encoded and comma
+  URLs), none on TNZ-1058; no wrap or buy control on TNZ-1058; exactly 1
+  "true size" (the label) and 1 fit-check line on every page; no
+  safe/unsafe, discount/MRP wording, or certification terms; footnote once per
+  page; all facts equal the catalog; no #hex in components or app (hex only in
+  globals.css); no app/api. Notes: N-4 TNZ-1058 shows "Rated 5.0/5" beside the
+  Out of stock badge (catalog-correct).
+- Open item (new, for M4/M6): the dev log shows a dev-only Next.js "instant"
+  validation warning on /find and /picks: `searchParams` awaited outside
+  `<Suspense>` may prevent instant navigation (suggests a Suspense placeholder
+  or `export const instant = false`). Dev-only per the Next.js docs; the build
+  is unaffected. No behaviour change made.
+- Supersession: conversation REQ-CV-33 ("a pick card SHALL NOT link to
+  /piece/[sku]") is superseded for the link rule by REQ-GP-10 and REQ-GP-11
+  (gift-presentation design §7), because the detail page now exists. The rest
+  of REQ-CV-33 stands. Conversation Q7 is resolved; REQ-CV-32 and REQ-CV-38
+  (buy link on pick cards, no buy control on the out-of-stock browse card) are
+  unchanged. M2 OQ-2 was resolved in Session 8.
+- Open questions Q1–Q22 of the three M3 design documents, for the Tue 24 Nov
+  checkpoint (Q10–Q14 are listed in the Session 9 entry; Q1–Q9 in Session 8):
+  - Safety Q1–Q9: not-stated rows are notes and never flip the verdict; weight
+    reference with no recipient is the youngest listed band; one median per
+    band across categories; listed weights are not like for like; rules live
+    in two places kept equal by a test; standalone earrings get no small-parts
+    note; PRD "0.8 g" text replaced; copy rewording beyond the card; Good fit
+    allowed with no recipient.
+  - True-size Q10–Q14: photo-in-box only for 4 pieces; "Width" of gold
+    pendants may be thickness; stored factor invalidated by zoom (dpr);
+    "true-size" as feature name on the landing; bracelet drawn as a circle.
+  - Gift Q15–Q22: Q15 `/piece/NOPE-0000` answers 200 + noindex, not 404
+    (observed; accepted unless the builder wants a 404); Q16 buy link present
+    in every wrap phase; Q17 adds "Copy message" (clipboard only); Q18
+    `detailHref` optional on PickCard; Q19 RESOLVED by the build; Q20
+    out-of-stock pieces show verdict and viewer but no wrap; Q21
+    `design_application_no` not shown; Q22 per-piece page titles left to
+    polish-deploy.
+- Not done: T4.3 (above); no server fetch of the 22 pages in the audit;
+  `.kiro/steering/structure.md` update left to the coordinator.
+
+### 2026-11-21 — Milestone 3 close-out (coordinator, direct)
+- Final verification on the committed code (after the testid fix):
+  `npm test` 953 passing in 45 files; `npm run typecheck` clean;
+  `npm run lint` 1 known warning only (mcp-catalog AgeBand);
+  `npm run validate-catalog` OK (2 expected warnings);
+  `npm run build` succeeds (30 static pages, /piece/[sku] × 22).
+  Dev-server T4.1 numbers re-verified by the coordinator (see the
+  Session 10 retry entry); all 22 detail pages count exactly 1
+  "true size" (the approximate label).
+- `.kiro/steering/structure.md` updated by the coordinator (new
+  `lib/` files and components listed; spec→code map extended for
+  safety-verdict, true-size-viewer, gift-presentation). Counts table
+  updated: 19 sessions, 18 completed, 5 MCP calls.
+- Session 10's Wave 4 gap (no QA report, no log entry when its
+  process ended) was closed by the 10b retry; nothing was re-done
+  twice. Session 10 counts as completed with that gap noted.
+- Milestone 3 committed and pushed to origin/main (see HEAD below).
+
 ## Counts (running totals)
 
 | Metric | Count |
 |---|---|
-| Kiro sessions (non-interactive CLI) | 14 (M1: 8; M2: 6 — session 4 spec, 5a Wave 1, 5b Wave 2, 5c Wave 3, 5d Wave 4, session 6 Wave 5) |
-| Kiro sessions completed successfully | 13 (M1: 7 + session 1 interrupted; M2: 6 of 6) |
-| MCP server calls | 3 via a Kiro MCP client (`matching_explain` × 3, session 6 — first live client calls; all three matched the golden cases exactly). `catalog_search`, `catalog_get`, `catalog_validate` still 0 live client calls (M1 smoke tests used piped JSON-RPC). |
+| Kiro sessions (non-interactive CLI) | 19 (M1: 8; M2: 6 — session 4 spec, 5a Wave 1, 5b Wave 2, 5c Wave 3, 5d Wave 4, session 6 Wave 5; M3: 5 — session 7 specs, session 8 safety-verdict, session 9 true-size-viewer, session 10 gift-presentation, session 10b retry Wave 4) |
+| Kiro sessions completed successfully | 18 (M1: 7 + session 1 interrupted; M2: 6 of 6; M3: 5 — session 10 completed with T4.4/T4.5 outstanding, closed by the 10b retry) |
+| MCP server calls | 5 via a Kiro MCP client (`matching_explain` × 4 — 3 in session 6, 1 in 10b, all matching the golden cases; `catalog_get` × 1 in 10b for TNZ-1058). `catalog_search`, `catalog_validate` still 0 live client calls (M1 smoke tests used piped JSON-RPC). |
 | Hook firings observed | 0 (hooks defined in M1; CLI firing unverified — T4.2 and T5.1 attempts could not observe firing from the CLI; both hooks' commands were verified to fail visibly by hand) |
-| Property-test counterexamples found | 3 (M1: 2; M2: 1 — Wave 1 `normalize()` adultIsMom leftover, fixed in the implementation with a regression test) |
+| Property-test counterexamples found | 3 (M1: 2; M2: 1 — Wave 1 `normalize()` adultIsMom leftover, fixed in the implementation with a regression test; M3: 0 property counterexamples — session 9 fixed 2 boundary bugs found in unit tests, not property tests) |
 
 ## Notes
 
@@ -750,7 +1046,7 @@ reset (as of the 12:22 snapshot; later sessions draw further).
   so a bangle fills the third slot with disclosure.
 - M1 (d): persona 8's no-signal picks (all score 1, incl. the ₹26,649
   THP-1001 hoop) look thin.
-- M2 OQ-2: landing copy says "prove it's safe" / "or if it's safe" —
+- M2 OQ-2 (RESOLVED in M3, see safety-verdict entry): landing copy says "prove it's safe" / "or if it's safe" —
   is that wording acceptable, or should it change before M3?
 - M2 (Wave 4): price-region alternative — exempt filter-chip text
   from P-CV-10, or keep `data-price-region` on the whole grid?
@@ -761,3 +1057,19 @@ reset (as of the 12:22 snapshot; later sessions draw further).
 - None of these block M3 (safety verdict + true-size + gift
   presentation), which starts on the M2 code as-is. The checkpoint
   decides them — or they ride as documented behaviour.
+
+## Milestone 3 — open questions for the Tue 24 Nov go/no-go checkpoint
+
+- Q15: `/piece/NOPE-0000` returns 200 + `noindex`, not 404 (observed;
+  the accepted fallback unless the builder wants a 404).
+- Dev-only Next.js "instant" validation warning on /find and /picks
+  (`searchParams` outside `<Suspense>`); dev-only, build unaffected —
+  leave, or set `instant = false` / add Suspense in M4/M6?
+- T4.3 physical checks NOT RUN (no human with a card + ruler):
+  box 18.6 mm ±5%, ring Ø ~42.5 mm ±5%, calibration <15 s, 1:1 print
+  sheet, phone + desktop. Needs a human before the REQ-TS-30 claim
+  can be made.
+- Q1–Q22 of the three M3 design documents are summarised in the
+  Session 8, Session 9, and Session 10 (retry) entries above.
+- Matching behaviour is unchanged (the four M1 persona questions
+  stay open for the checkpoint).

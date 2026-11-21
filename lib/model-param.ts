@@ -16,6 +16,12 @@ export function modelHref(path: "/picks" | "/find", model: RecipientModel): stri
   return `${path}?${query}`;
 }
 
+/** `/piece/<sku>` plus `?m=<percent-encoded model JSON>` when a model is given. */
+export function pieceHref(sku: string, model?: RecipientModel): string {
+  const path = `/piece/${encodeURIComponent(sku)}`;
+  return model ? `${path}?${new URLSearchParams({ [MODEL_PARAM]: encodeModelParam(model) })}` : path;
+}
+
 export type ParamResult =
   | { status: "missing" }
   | { status: "invalid"; reason: string }
