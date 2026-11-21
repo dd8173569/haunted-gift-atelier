@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useReducer, useRef } from "react";
+import ActionButton from "./ActionButton";
 import AtelierButton from "./AtelierButton";
 import ChipGroup, { type ChipOption } from "./ChipGroup";
 import ProgressMoon from "./ProgressMoon";
@@ -153,13 +154,9 @@ export default function Conversation({ initialModel, notice, momNote }: Conversa
               selected={answers.symbolList ?? []}
               onToggle={(v) => send({ type: "toggle-symbol", key: v as SymbolKey })}
             />
-            <button
-              type="button"
-              onClick={() => send({ type: "continue" })}
-              className="flex h-12 items-center justify-center rounded-full bg-plum px-8 text-base font-medium text-pearl transition-colors hover:bg-plum/85"
-            >
+            <ActionButton size="lg" onClick={() => send({ type: "continue" })}>
               Continue
-            </button>
+            </ActionButton>
           </div>
         ) : null}
         {backControl()}
@@ -170,17 +167,16 @@ export default function Conversation({ initialModel, notice, momNote }: Conversa
   // A render function, not a component: it must not remount between renders.
   function backControl() {
     return step === "relationship" && !state.returnToCard ? (
-      <Link href="/" className="inline-flex min-h-11 items-center px-4 text-sm hover:underline">
+      <Link
+        href="/"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center px-4 text-sm font-medium text-plum hover:underline"
+      >
         Back
       </Link>
     ) : (
-      <button
-        type="button"
-        onClick={() => send({ type: "back" })}
-        className="min-h-11 px-4 text-sm hover:underline"
-      >
+      <ActionButton variant="quiet" onClick={() => send({ type: "back" })}>
         Back
-      </button>
+      </ActionButton>
     );
   }
 
@@ -220,7 +216,7 @@ export default function Conversation({ initialModel, notice, momNote }: Conversa
           {INCOMPLETE_NOTICE}
         </p>
       ) : null}
-      {body}
+      <div className="w-full rounded-3xl bg-blush/50 p-6 sm:p-10">{body}</div>
     </div>
   );
 }

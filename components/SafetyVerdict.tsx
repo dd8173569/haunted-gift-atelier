@@ -16,7 +16,7 @@ function GuidanceBlock({ row }: { row: VerdictRow }) {
         return (
           <p key={g} className="mt-2 text-sm leading-relaxed">
             {labeled && (
-              <span className="text-plum/60">
+              <span className="text-plum/75">
                 General guidance{id ? ` (${id})` : ""}:{" "}
               </span>
             )}
@@ -53,7 +53,7 @@ function Row({ row }: { row: VerdictRow }) {
           </p>
         )}
         <GuidanceBlock row={row} />
-        <p className="mt-2 text-xs text-plum/60">{`Source: ${row.sources.join(", ")}`}</p>
+        <p className="mt-2 text-xs text-plum/75">{`Source: ${row.sources.join(", ")}`}</p>
       </dd>
     </div>
   );
@@ -70,7 +70,7 @@ export default function SafetyVerdict({ verdict }: { verdict: VerdictData }) {
       data-verdict={verdict.verdict}
       className={`rounded-2xl border border-plum/15 p-6 text-plum ${good ? "bg-sage/60" : "bg-champagne"}`}
     >
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-plum/60">Fit check</p>
+      <p className="text-xs font-semibold uppercase tracking-eyebrow text-plum/75">Fit check</p>
       <h2 id={titleId} className="mt-1 font-display text-3xl font-semibold">
         {verdict.verdict}
       </h2>

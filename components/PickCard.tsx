@@ -8,13 +8,19 @@ import ProductPhoto from "./ProductPhoto";
    "See details" is a navigation link to /piece/[sku], passed in by /picks (REQ-GP-10, which
    supersedes the M2 ban of REQ-CV-33). It is optional so a card can render without it. */
 export default function PickCard({ view, detailHref }: { view: PickView; detailHref?: string }) {
+  const nameId = `pick-${view.sku}-name`;
   return (
-    <article data-price-region className="flex flex-col gap-3 rounded-3xl bg-blush/50 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-        Pick {view.rank} · {view.category}
-      </p>
+    <article data-price-region className="flex flex-col gap-3 rounded-3xl bg-blush/50 p-4 shadow-card">
+      <div>
+        <span aria-hidden="true" className="block h-0.5 w-8 rounded-full bg-gold" />
+        <p className="mt-2 text-xs font-semibold uppercase tracking-eyebrow text-plum/80">
+          Pick {view.rank} · {view.category}
+        </p>
+      </div>
       <ProductPhoto src={view.imageSrc} alt={view.name} />
-      <h2 className="font-display text-xl font-semibold">{view.name}</h2>
+      <h2 id={nameId} className="font-display text-xl font-semibold">
+        {view.name}
+      </h2>
       <p className="flex items-baseline justify-between gap-3">
         <span className="text-lg font-semibold">{formatInr(view.price_inr)}</span>
         {view.rating !== null && <span className="text-sm text-plum/75">Rated {view.rating}</span>}
@@ -38,11 +44,11 @@ export default function PickCard({ view, detailHref }: { view: PickView; detailH
       </ul>
       <div className="mt-auto flex flex-col gap-2 pt-2">
         {detailHref !== undefined && (
-          <AtelierButton href={detailHref} variant="secondary">
+          <AtelierButton href={detailHref} variant="secondary" describedBy={nameId}>
             See details
           </AtelierButton>
         )}
-        <AtelierButton href={view.url} external>
+        <AtelierButton href={view.url} external describedBy={nameId}>
           Buy on Tiny Tiaraa ↗
         </AtelierButton>
       </div>

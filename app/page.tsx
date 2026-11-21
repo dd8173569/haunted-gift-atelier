@@ -1,5 +1,7 @@
 import Link from "next/link";
+import CobwebCorner from "../components/CobwebCorner";
 import PriceFootnote from "../components/PriceFootnote";
+import SiteHeader from "../components/SiteHeader";
 
 /* Landing — Haunted Gift Atelier (PRD §1, step 1).
    Hero leads with the TRUST problem, not the quiz. Milestone 1 shell:
@@ -13,11 +15,10 @@ function CrescentMoon() {
       viewBox="0 0 44 44"
       fill="none"
       aria-hidden="true"
-      className="text-gold"
     >
       <path
         d="M28.5 4.5A17 17 0 1 0 39.5 30.5 13.5 13.5 0 0 1 28.5 4.5Z"
-        fill="currentColor"
+        className="fill-gold"
       />
     </svg>
   );
@@ -53,29 +54,25 @@ function Motes() {
 export default function Home() {
   return (
     <div className="flex flex-col flex-1">
-      <header className="flex items-center justify-between px-6 py-5 sm:px-10">
-        <Link href="/" className="font-display text-2xl font-semibold tracking-wide">
-          Tiny Tiaraa
-        </Link>
-        <nav className="flex items-center gap-6 text-sm">
-          <Link href="#how" className="hidden sm:inline hover:underline">
-            How it works
-          </Link>
-          <Link href="/atelier" className="hover:underline">
-            Browse the atelier
-          </Link>
-        </nav>
-      </header>
+      <SiteHeader
+        links={[
+          { href: "#how", label: "How it works", hideBelowSm: true },
+          { href: "/atelier", label: "Browse the atelier" },
+        ]}
+      />
 
-      <main className="flex flex-col flex-1">
+      <main id="main-content" tabIndex={-1} className="flex flex-col flex-1 outline-none">
         {/* Hero */}
         <section className="relative overflow-hidden px-6 pt-10 pb-16 sm:px-10 sm:pt-16">
           <Motes />
+          <CobwebCorner side="left" />
+          <CobwebCorner side="right" />
           <div className="relative mx-auto max-w-3xl text-center">
             <div className="flex justify-center">
               <CrescentMoon />
             </div>
-            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <span aria-hidden="true" className="mx-auto mt-4 block h-0.5 w-10 rounded-full bg-gold" />
+            <p className="mt-3 text-xs font-semibold uppercase tracking-eyebrow text-plum/80">
               Haunted Gift Atelier
             </p>
             <h1 className="mt-4 font-display text-4xl font-semibold leading-tight sm:text-6xl">
@@ -95,7 +92,7 @@ export default function Home() {
               </Link>
               <Link
                 href="/atelier"
-                className="flex h-12 items-center justify-center rounded-full border border-plum/30 px-8 text-base font-medium transition-colors hover:bg-blush"
+                className="flex h-12 items-center justify-center rounded-full border border-plum/60 px-8 text-base font-medium transition-colors hover:bg-blush"
               >
                 Browse the atelier
               </Link>
@@ -105,9 +102,10 @@ export default function Home() {
 
         {/* How it works */}
         <section id="how" className="bg-blush/60 px-6 py-14 sm:px-10">
-          <div className="mx-auto grid max-w-4xl gap-8 sm:grid-cols-3">
-            <div>
-              <p className="font-display text-3xl font-semibold text-gold">1</p>
+          <ol className="mx-auto grid max-w-4xl gap-8 sm:grid-cols-3">
+            <li>
+              <p className="font-display text-3xl font-semibold text-plum">1</p>
+              <span aria-hidden="true" className="mt-1 block h-0.5 w-8 rounded-full bg-gold" />
               <h2 className="mt-2 font-display text-xl font-semibold">
                 Tell us who it&rsquo;s for
               </h2>
@@ -115,9 +113,10 @@ export default function Home() {
                 A few taps — who they are, how old, what&rsquo;s the occasion,
                 what you&rsquo;d like to spend.
               </p>
-            </div>
-            <div>
-              <p className="font-display text-3xl font-semibold text-gold">2</p>
+            </li>
+            <li>
+              <p className="font-display text-3xl font-semibold text-plum">2</p>
+              <span aria-hidden="true" className="mt-1 block h-0.5 w-8 rounded-full bg-gold" />
               <h2 className="mt-2 font-display text-xl font-semibold">
                 Get three real picks
               </h2>
@@ -125,9 +124,10 @@ export default function Home() {
                 Three pieces from the real Tiny Tiaraa catalog, each with its
                 reason — never a guess, never a fake third.
               </p>
-            </div>
-            <div>
-              <p className="font-display text-3xl font-semibold text-gold">3</p>
+            </li>
+            <li>
+              <p className="font-display text-3xl font-semibold text-plum">3</p>
+              <span aria-hidden="true" className="mt-1 block h-0.5 w-8 rounded-full bg-gold" />
               <h2 className="mt-2 font-display text-xl font-semibold">
                 Check it, see it, wrap it
               </h2>
@@ -136,14 +136,14 @@ export default function Home() {
                 your screen, on every piece&rsquo;s page — then a gift wrap and
                 a message.
               </p>
-            </div>
-          </div>
+            </li>
+          </ol>
         </section>
 
         {/* Trust strip */}
         <section className="px-6 py-12 sm:px-10">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-plum/60">
+            <p className="text-sm font-medium uppercase tracking-eyebrow text-plum/80">
               Real catalog &middot; Real prices &middot; No discounts invented
             </p>
             <p className="mt-4 text-sm leading-relaxed text-plum/75">
@@ -157,7 +157,7 @@ export default function Home() {
 
       <footer className="border-t border-plum/10 px-6 py-6 sm:px-10">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-2 text-center">
-          <p className="text-sm text-plum/70">
+          <p className="text-sm text-plum/75">
             Haunted Gift Atelier — built with Kiro &middot; Real catalog:
             Tiny Tiaraa &middot; Kiroween 2026
           </p>

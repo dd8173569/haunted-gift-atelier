@@ -998,15 +998,258 @@ reset (as of the 12:22 snapshot; later sessions draw further).
   twice. Session 10 counts as completed with that gap noted.
 - Milestone 3 committed and pushed to origin/main (see HEAD below).
 
+## Milestone 4 (21 Nov 2026)
+
+### 2026-11-21 — Session 12: polish-deploy Waves 0–1 (Kiro, non-interactive) — COMPLETED
+Scope: `.kiro/specs/polish-deploy/tasks.md` T0.1, T0.2, T1.1 to T1.5. Waves 2 to 4 not started.
+
+**T0.1 axe decision (REQ-PD-37, Q-PD11): `axe-core` called directly works. `vitest-axe` and the role-only fallback were not needed.**
+- Versions: `axe-core` 4.14.1 (already installed through `eslint-plugin-jsx-a11y`; `npm install -D axe-core@4.14.1` added only `"axe-core": "^4.14.1"` to `devDependencies` in `package.json` and the same line in the root entry of `package-lock.json`; no other package changed). Vitest 5.1.1, jsdom 31, Testing Library 16.3.3, React 19.3.0.
+- Spike: `PickCard` (golden 1, first pick) and `Conversation` rendered in jsdom, `axe.run(container, { runOnly: tags, rules })`. Both returned zero violations. A positive control (`<img src>` with no alt) returned `image-alt`, so axe is really running in jsdom, not silently passing. The spike test file was deleted; `tests/helpers/axe.ts` stays.
+- Rules that cannot run in jsdom: `color-contrast` (no layout or Tailwind), `target-size` (no geometry), `scrollable-region-focusable` (jsdom reports 0 for scroll and client sizes). All three are switched off in the helper with a one-line reason each, and replaced by REQ-PD-40 and REQ-PD-41.
+- Also not applicable on a container: page-level rules (`landmark-one-main`, `page-has-heading-one`, `region`, `document-title`, `html-has-lang`, `skip-link`, `meta-viewport`, `bypass`) report "inapplicable" when axe is given a container, so the matrix of design §7.2 cannot rely on axe for them. REQ-PD-39 (role and query assertions) and the static layout checks of REQ-PD-41 carry them. This is a gap in the spec's assumption that axe covers "landmarks and document basics"; it changes no task.
+
+**T0.2 baseline:** zero axe violations on landing, a `/find` step, `/picks` golden 1, `/atelier`, and `/piece/TNZ-1056` (see `docs/qa-reports/polish-m4.md`, "Baseline"). The design §2 grep counts all reproduce (8, 4, 1, 7, 12, 12, 6 headers, 0 `id="main-content"`), except letter-spacing: 6 arbitrary uses (`[0.15em]` ×1, `[0.2em]` ×4, `[0.25em]` ×1), design says "five". No task changes.
+
+**Wave 1 outcome:** 953 tests before, 1067 in 50 files after (+110 in 5 new test files, +4 cases that `tests/safety.copy.test.ts` generates for the 4 new `.tsx` components). `npm run typecheck` clean; `npm run lint` 0 errors (the one known `AgeBand` warning in `packages/mcp-catalog`); `npm run validate-catalog` OK. `lib/page-meta.ts` coverage 100% lines, branches, functions; `coverage/` removed.
+
+**Assertion updates (REQ-PD-49, design §7.5):** `tests/gift-wrap.ui.test.tsx` line 218 `border-plum/30` to `border-plum/60`, with a comment. `tests/atelier.ui.test.tsx` line 59 is Wave 2 (T2.4), not changed yet.
+
+**Counterexamples and fixes:**
+- Test-generator, not product code: P-PD-4 "name appears exactly once" failed for the generated name `a`, which also occurs in the fixed sentence ("a size view"). Fix: assert the name by position (the string starts with it, and the added suffix is exactly "" or " (out of stock)") for generated products, and keep the exactly-once check for the 22 real names. Not a loosened product assertion.
+- P-PD-4 digit rule failed on the metal label ("18KT gold"). See spec question SQ-1.
+
+**Deviations and decisions:**
+- `app/globals.css`: the focus rule and the global reduced-motion block sit before the "Gift wrap reveal" comment, not at the end of the file. `tests/gift-presentation.static.test.ts` scans everything after that comment for the words "color" and "background" (a rule that `var(--color-plum)` trips), so appending broke it. No existing rule was edited and the wrap block is byte for byte unchanged. The non-colour tokens went inside the existing `@theme` block (REQ-PD-01: "the same `@theme` block").
+- `tracking-eyebrow` and `.shadow-card` confirmed as generated utilities by compiling the stylesheet with Tailwind 4.3.3 (`compile()` from `tailwindcss`), then deleting the throwaway script.
+- Interim state: external `AtelierButton`s now carry `aria-describedby="new-tab-hint"`, but `SiteHeader` (which renders that hint) is used by no screen until Wave 2, so the reference dangles on the live pages in between. Nothing asserts on it yet; it resolves in T2.1 to T2.5. Not shipped between waves.
+- `ActionButton` takes `ref` as a normal prop (React 19) so Wave 2 focus hand-offs need no `forwardRef`. `CobwebCorner` was built (Q-PD9 not declined).
+- The token table of design §3 border rows `/15`, `/30`, `/40`, `/50` are quoted as single or rounded values. The test pins the measured ranges instead: `/30` 1.74 to 1.78 (design: 1.76), `/15` 1.30 to 1.31. `text-plum/70` on `sage` measures 4.499, just below 4.5; the design table says "4.50, no margin". The policy floor of 75 is unaffected.
+
+**Spec questions raised (not resolved by editing around them):**
+- SQ-1: REQ-PD-57 says a description contains "no digit that is not in the catalog name or the age-group label". REQ-PD-35's sentence also carries the metal label ("18KT gold", "925 silver"), whose digits are not in the name for most pieces. The property allows the metal label's digits too. Spec text should add "or the metal label".
+- SQ-2: design §6 types `pieceDescription` over `materials`; the page already holds the parsed product with `metal`, and `METAL_LABEL` is keyed on `metal`, so the function takes `metal`. Spec text should say so.
+- SQ-3: the design's "nine surfaces" are the four pastel tokens plus five composites; `plum` is listed in §3's prose as a surface but only `text-pearl` sits on it. The helper keeps `plum` and `plum/85` in a separate `plumFillSurfaces` list.
+
+### 2026-11-21 — Session 13a: polish-deploy Wave 2, screens part 1 (T2.1 to T2.4) (Kiro, non-interactive) — COMPLETED
+
+Read the three spec files one at a time, then the Next.js docs (`generate-metadata.md` title/template, `instant.md`) before editing.
+Tasks done: T2.1 landing, T2.2 `/find`, T2.3 `/picks`, T2.4 `/atelier`. T2.5 to T2.8 not started.
+
+Files changed (git numstat, added/removed):
+- `app/page.tsx` 31/31, `app/find/page.tsx` 11/10, `app/picks/page.tsx` 16/11, `app/atelier/page.tsx` 12/11
+- `components/Conversation.tsx` 10/14, `ChipGroup.tsx` 1/1, `ProgressMoon.tsx` 2/3, `RecipientCard.tsx` 7/7
+- `components/PickCard.tsx` 13/7, `BrowseCard.tsx` 9/6, `CatalogGrid.tsx` 20/12
+- `tests/atelier.ui.test.tsx` 2/1. `DisclosureNote.tsx` needed no change (no policy-violating class).
+
+What changed: `SiteHeader` and `main#main-content` (tabIndex -1, outline-none) on all four screens; landing eyebrow and numerals
+plum with a `bg-gold` rule, moon `fill-gold`, steps in an `<ol>`, `CobwebCorner` in both hero corners, secondary CTA `border-plum/60`;
+`/find` conversation inside one `bg-blush/50 rounded-3xl` panel, Continue/Back/Edit through `ActionButton`, Back on question 1 a styled
+`Link`, chips `border-plum/60`; `/picks` and `/atelier` cards `shadow-card`, heading ids `pick-${sku}-name` and `browse-${sku}-name` with
+`describedBy` on "See details" and the buy link; out-of-stock card `text-plum/75`; "Clear filters" is `ActionButton secondary` and moves
+focus to the first chip in its click handler (the chip is always mounted); the empty-state sentence now sits inside the `aria-live` container
+with the count; `metadata.title` on `/find`, `/picks`, `/atelier` (from `ROUTE_TITLES`).
+
+Assertion update (REQ-PD-49): `tests/atelier.ui.test.tsx` line 59, `text-plum/50` to `text-plum/75`, with a comment. No other assertion changed.
+
+Tests: 1067 before, 1067 after (50 files). One run failed first: `tests/safety.copy.test.ts` greps `CatalogGrid.tsx` for the word "safe"
+and my code comment contained it. Reworded the comment; no test touched.
+Checks: typecheck clean, lint 0 errors (1 existing warning in `packages/mcp-catalog`), validate-catalog OK, `npm run build` OK,
+`npx vitest run tests/picks tests/atelier tests/conversation tests/journey` green.
+
+Grep gates over `app components`: zero hits in every T2.1 to T2.4 file. Remaining hits are in T2.5 to T2.7 files only:
+`text-plum/60|70`: `app/piece/[sku]/page.tsx`, `PriceFootnote.tsx`, `SafetyVerdict.tsx`, `SizeOutlines.tsx`, `GiftWrap.tsx`;
+`border-plum/30`: `app/piece/[sku]/page.tsx`, `CalibrationSlider.tsx`, `SizeRuler.tsx`, `GiftWrap.tsx`, `TrueSizeViewer.tsx`;
+`tracking-[`: `SafetyVerdict.tsx`; `text-gold`: none left.
+
+Deviations:
+- The price footnote on `/picks`, `/atelier` and the landing footer is still `text-xs text-plum/60`. It comes from `components/PriceFootnote.tsx`,
+  which T2.5 owns and the boundaries here did not list. The `text-sm text-plum/75` change lands with T2.5.
+- `DisclosureNote.tsx` unchanged (nothing to fix).
+- Edit buttons use `ActionButton` secondary, whose hover is `bg-champagne`, the same as the list surface on the recipient card, so hover shows no step there. Cosmetic; for the visual review.
+
+Open questions: none new beyond Q-PD1 to Q-PD16. The `#new-tab-hint` id now resolves on the four screens; piece screens follow in 13b.
+
+### 2026-11-21 — Session 13b: polish-deploy Wave 2, screens part 2 (T2.5 to T2.8) (Kiro, non-interactive) — COMPLETED
+
+Wave 2 is complete after this session. Wave 3 not started.
+
+- **Tasks done:** T2.5 `/piece/[sku]` static parts, T2.6 viewer, T2.7 gift wrap, T2.8 root layout.
+- **Files changed (line counts after the edit):** `app/layout.tsx` 39, `app/piece/[sku]/page.tsx` 134, `app/piece/[sku]/not-found.tsx` 24,
+  `components/PieceFacts.tsx` 26, `PriceFootnote.tsx` 10, `SafetyVerdict.tsx` 88, `TrueSizeViewer.tsx` 98, `CalibrationSlider.tsx` 81,
+  `SizeOutlines.tsx` 142, `SizeRuler.tsx` 185, `GiftWrap.tsx` 195; test: `tests/true-size.ui.test.tsx` 643 (one assertion).
+- **Test count:** 1067 in 50 files before, 1067 in 50 files after. No test added (Wave 3 owns the new suites).
+- **Next.js docs re-read first:** `generate-metadata.md` ("title", "template", "With Cache Components"). `generateMetadata` awaits `params` and
+  the piece route has `generateStaticParams`; `npm run build` passes with no error, so no `use cache` or dynamic marker was needed.
+  Title template is on the root layout only (it does not apply to the root segment's own page, so `/` shows the default).
+- **Assertion updates (REQ-PD-49):** one. `tests/true-size.ui.test.tsx` line 283: `toHaveAttribute("role", "img")` on the ring became
+  `toHaveAttribute("aria-hidden", "true")` with a comment; the `aria-label` assertions at lines 284 and 293 and the caption text assertions are
+  unchanged. Line 350 (`getAllByRole("img")` length 1) needed no edit: the photo box carries no role and the only `role="img"` left is the `<img>`.
+  No test pinned the old `PriceFootnote` classes, so none changed for that. `tests/gift-wrap.ui.test.tsx` needed no edit: its queries use
+  `getByRole("button", ...)` and the persistent `wrap-status` region did not make any `status` query ambiguous.
+- **Q-PD7 decision:** accepted (not vetoed). Ring and height-line SVGs now `aria-hidden="true"` and keep `aria-label`; the box drawing without a photo
+  gets `aria-hidden` plus `aria-label`; the photo-in-box drawing is unchanged. Outcome: all 1067 tests pass.
+- **Focus hand-offs:** slider focuses on open; "Reset calibration" or "Calibrate with a card" gets focus after This matches, Cancel, Reset; "Skip"
+  gets focus when wrapping starts. Checked with a throwaway jsdom test (deleted afterwards): all five hand-offs, `aria-valuetext`, and
+  the wrap status text swap behaved as specified.
+- **Deviation (spec says effect, repo forbids it):** design §5.1 implies effects for focus. `tests/true-size.static.test.ts` bans `useEffect`
+  in `TrueSizeViewer.tsx` and `CalibrationSlider.tsx` ("no setState inside an effect, no effect hooks at all"). The test was not loosened. Focus is
+  done through ref callbacks that focus the element as it mounts (a pending-target ref set by the click handler in the viewer). `GiftWrap` has no such
+  ban and uses its existing effect for both Skip and the card heading.
+- **Other notes:** the `GiftWrap` revealed card border moved from `border-plum/15` to `border-plum/60` as the task list says; no test pinned the old one.
+  Drawing detail lines and the reference-card caption in `SizeOutlines` moved from `text-xs text-plum/70` to `text-sm text-plum/75` (REQ-PD-03 allows
+  `text-xs` only for eyebrows and "Source:"). The `SafetyVerdict` "Source:" line stays `text-xs` at `text-plum/75`.
+  The always-mounted wrap status adds an empty flex child in the idle phase, so the idle section gains one extra `gap-5` of space; flagged for the visual review.
+- **Checks:** `npm test` 1067/1067; typecheck clean; lint 0 errors (1 existing warning in `packages/mcp-catalog`); `validate-catalog` OK;
+  focused run (picks, atelier, gift, true-size, safety, piece, conversation, journey) 673/673; `npm run build` green. Grep gates all 0:
+  `text-gold`, `text-plum/(50|55|60|65|70)`, `border-plum/30`, `tracking-[`.
+- **New spec questions:** Q-PD17: design §5.1 assumes effects for focus but the M3 static test bans them in the viewer files; ref callbacks used. Confirm
+  this is the preferred pattern, or approve a spec change to the static test.
+
+### 2026-11-21 — Session 14a: polish-deploy Wave 3 part 1, axe and keyboard suites (T3.1, T3.2) (Kiro, non-interactive) — COMPLETED
+
+T3.3 and T3.4 not started.
+
+- **Tasks done:** T3.1 axe suite, T3.2 keyboard, live-region and name tests.
+- **Spec files read** one at a time (requirements, design, tasks) before any edit.
+- **Next.js docs:** not re-read this session. No Next.js code was written or changed (tests and one SVG attribute only); the docs listed in the tasks header belong to T3.4.
+- **Files changed (line counts after the edit):** new `tests/a11y.axe.test.tsx` 219, `tests/a11y.keyboard.test.tsx` 753, `tests/helpers/pages.tsx` 136
+  (page render helpers and a DOM driver for the conversation), `tests/helpers/conversation-actions.ts` 69 (the shared index-based generator: `legalActions`
+  moved out of `tests/conversation.property.test.ts` unchanged, plus `pickAction`); edited `tests/conversation.property.test.ts` 554 (the function was
+  removed and imported; six imports that became unused were removed; its 27 tests pass unchanged); component `components/SizeOutlines.tsx` 142 (one attribute).
+- **Test count:** 1067 in 50 files before, 1331 in 52 files after (+264: 72 axe, 192 keyboard). `npm test` 1331/1331; the two new files pass alone (264/264).
+- **Axe matrix:** 72 states, each its own `it`, zero violations on all 72 (landing 1; `/find` 14 including the 8 question steps, Religious sub-chips, card, adult-end,
+  notice, resumed card, edit; `/picks` 3; `/atelier` 4; `/piece` 22 idle + 7 calibrated + 7 slider open + 6 wrapping + 6 revealed + 1 with `?m=`; not-found 1).
+  Every state also asserts P-PD-6 (one `h1` first, no skipped level, one `main`). The page-level axe rules are not asserted (container render); T3.2 covers them by query.
+- **Component fix for a test-revealed failure (1):** `components/SizeOutlines.tsx` height-line drawing (`data-testid="size-line"`) had `role="img"` and an `aria-label`
+  equal to its figcaption (REQ-PD-29 requires `aria-hidden`; session 13b had hidden only the ring and the box). Now `aria-hidden="true"`, label kept as an attribute.
+  Found by the "caption repeats its label is aria-hidden" test on a line item. Axe did not catch it (a double read, not a rule violation).
+- **Test-side errors fixed (not component bugs, no assertion loosened):** the verdict heading may be "Good fit" or "Check this" (my first assertion assumed one);
+  the calibration store keeps an in-memory copy besides localStorage, so the keyboard file resets it in `beforeEach`; the "true size" attribute scan allows only the
+  pinned calibrated drawing captions and asserts nothing else carries it (slider, hint, statuses).
+- **Q-PD17 outcome:** the ref-callback pattern passes every focus test: slider on open, "Reset calibration" after "This matches", "Calibrate with a card" after Cancel and
+  after Reset, none on load. No fix needed. Q-PD17 stays open only as a spec-wording question (design §5.1 still says "effect"); it is not a behaviour problem.
+- **What T3.2 asserts:** outline, landmarks (one banner, "Primary" nav, one `main#main-content`, contentinfo on the landing) and content-inside-landmark on 15 screens; skip link
+  first in focus order on 15 screens plus the layout tree (`lang="en"`, `SkipLink` first in body); no positive `tabindex` and `-1` only on `main`, `[data-step-heading]`,
+  the gift-card `h3`; focus after answer, back, edit, return to the card, adult-end; P-PD-7 (fast-check seed 20261121, 100 runs, DOM-driven); wrap focus (Skip, card heading by timer, by
+  Skip, reduced motion); every REQ-PD-22 live region present before its text changes (fake timers for the wrap); `aria-describedby` on repeated links and the hint on every
+  `_blank` link; alt equals the name on pick, browse and detail for all 22 SKUs; slider name, description, `aria-valuetext`; P-PD-8 name and target classes for
+  `PickCard` and `BrowseCard` over 22 SKUs.
+- **Checks:** `npm test` 1331/1331; typecheck clean; lint 0 errors (1 existing warning in `packages/mcp-catalog`); `validate-catalog` OK (22 products, 2 existing width warnings). No `coverage/`, no server, no temp file.
+- **Deviation:** the DOM driver `tests/helpers/pages.tsx` and `pickAction` are additions to the generator move the task named. `pickAction` never picks "restart" because the UI has no control for it.
+- **New spec questions:** none.
+
+### 2026-11-21 — Session 14b: polish-deploy Wave 3 part 2, static, contrast-scan, targets, copy-lock and the instant warning (T3.3, T3.4) (Kiro, non-interactive) — COMPLETED
+
+Wave 4 not started.
+
+- **Tasks done:** T3.3 and T3.4.
+- **Spec files and docs:** requirements, design and tasks read one at a time before any edit. Next.js docs re-read before T3.4: `instant.md` (route segment config), `instant-navigation.md`, `generate-metadata.md` ("With Cache Components"). `partialPrefetching.md` is not at the path the tasks header names (`05-config/01-next-config-js/`); its content was covered by the `instant-navigation.md` Partial Prefetching sections. No Tailwind theme docs in `node_modules/tailwindcss`; the `tracking-eyebrow` and `shadow-card` tokens were already proven by the Wave 1 and 2 builds. No Tailwind or token change this session.
+- **Files changed (line counts after the edit):** edited `tests/a11y.contrast.test.ts` 341 (part 2 appended, 210 before; the header comment updated); new `tests/a11y.static.test.ts` 201, `tests/a11y.targets.test.tsx` 318, `tests/polish.copy.test.tsx` 429, `tests/helpers/source-scan.ts` 69 (reads `components/` and `app/` as text, strips comments, finds the JSX tag around a match; shared by the contrast scan and the static file). Components: `components/SizeOutlines.tsx` (one class, see fixes). T3.4 code: `app/find/page.tsx`, `app/picks/page.tsx`, `app/atelier/page.tsx`, `app/piece/[sku]/page.tsx` (one `export const instant = false` and a comment each).
+- **Test count:** 1331 in 52 files before, 1502 in 55 files after (+171: contrast part 2 +11 so the file is 63, static 32, targets 63, copy 65). `npm test` 1502/1502. The four new or extended files pass alone (223/223).
+- **What T3.3 asserts:**
+  - Contrast scan (REQ-PD-25, 26, 40; P-PD-2, 3). Every `text-*`, `border-*`, `bg-*` token utility in the source, with variant prefixes, is checked against all nine surfaces by the computed ratio. Text must be plum or pearl and every `text-plum/N` must reach 4.5:1. `text-pearl` needs a `bg-plum` in its file and 7:1. Borders other than the decorative 10 and 15 must reach 3:1, and the decorative alphas are shown to be under 3:1 so the exemption hides no pass. Every `bg-` surface is one the computation covers or a decorative fill (gold, `plum/15`).
+  - Static (REQ-PD-41; P-PD-9). No `text-gold`, no text alpha under 75, border floor, no colour literal. `outline-none` only inside a tag that carries `tabIndex={-1}` (8 or more found). No `order-*`, reverse or dense classes, no positive tabIndex. The global reduce rule has the three `!important` declarations and `.mote` hidden, and no other `!important` exists in the stylesheet. The wrap keyframes end exactly at `WRAP_REVEAL_MS` (tight, not only below) and the card fade equals `CARD_FADE_MS`. No inline animation or transition, no rAF, `.animate(`, smooth scroll, `maximum-scale` or `user-scalable`, no raw `<img`. `<button` appears only in `ActionButton.tsx` and `ChipGroup.tsx`. `lang="en"` and `SkipLink` first in `<body>`. No logo or watermark text in the source.
+  - Targets (REQ-PD-28; P-PD-8). `PickCard` and `BrowseCard` over all 22 SKUs (names contain the visible text, class rule), the header on four routes, the skip link, question 1, a later question, adult-end, the Religious sub-chips, the recipient card (7 Edit buttons), the viewer idle, calibrating and calibrated, the wrap idle, wrapping and revealed. The rule guards classes only: jsdom has no Tailwind and no layout.
+  - Copy lock (REQ-PD-15, 16, 42; P-PD-10). All 22 `/piece` pages in approximate mode and in stale mode (a calibration stored at dpr 2): fit-check line, no-certifications line, photo note, no-recipient line, the approximate label once, "true size" exactly once across text and speakable attributes, the footnote on every listed price, no discount wording, photos `object-contain` with no filter or overlay class up to the card and nothing beside the photo, only `/catalog/<SKU>` images, buy links equal the catalog `url`, and for TNZ-1058 no buy link, no wrap, no store link. Also `/atelier` (22 cards, 21 buy links, one "Out of stock", the muted card), `/picks` goldens 1 to 3, landing, `/find`, the not-found page, the wrap strings, "Copied" and the manual-copy line.
+- **Component fix for a test-revealed failure (1):** `components/SizeOutlines.tsx` line 131, the credit-card reference drawing, `border-plum/40` (2.2:1) became `border-plum/60` (REQ-PD-26 names the size drawings). Found by the contrast scan. No existing test pinned `/40`.
+- **Test-side errors fixed (not component bugs, no assertion loosened):** my first discount pattern matched "turn off" in the pinned ruler line and "75% gold" in a safety rule, so it now names discount forms only (`% off`, `off ₹`, `save`, `was ₹`, MRP and so on); the landing trust strip says "No discounts invented" (REQ-SV-29), allowed as the one phrase on the landing and asserted absent elsewhere; the file-count threshold and a JSX comment between `SkipLink` and `Suspense` were off in my own tests.
+- **Deviation 1, rupee amounts that are not prices (new spec question Q-PD18):** REQ-PD-15 says every `₹` text node has a price region with the footnote. Budget bands ("Under ₹2,500", "₹15,000–₹25,000", "₹25,000+"), the budget chip labels, the recipient-card lines and the pinned relaxation disclosure ("No pieces matched your ₹15,000–₹25,000 budget…") contain `₹` and cannot take the footnote (pinned copy, REQ-PD-16). The copy test therefore checks every single bare listed amount (`₹18,299`) and exempts only text that is a band shape or says "budget". No component was changed. If the spec means literally every `₹` node, the disclosure and the chips need a spec change.
+- **Deviation 2, mote delay:** `app/page.tsx` sets `style={{ animationDelay }}` on each mote. The static test bans every inline animation or transition property except `animationDelay`, allowed only in `app/page.tsx` (the animation is the `.mote` class, neutralised and hidden by the reduce rule).
+- **T3.4 instant warning, step 1 (dev, port 3116, no browser on the machine, so curl only).** Visited `/`, `/find`, `/picks?m=<golden 1>`, `/atelier`, `/piece/TNZ-1056`: all 200. Warned routes: `/find` (app/find/page.tsx:18), `/picks` (app/picks/page.tsx:25), `/atelier` (app/atelier/page.tsx:17), `/piece/[sku]` (app/piece/[sku]/page.tsx:49). `/` did not warn. So the warning also appears on `/atelier` and `/piece/[sku]`, which the dev log of M3 had not named. Exact text, one block per route (shown for `/find`):
+
+```
+Error: Route "/find": Next.js encountered URL data during prerendering or a navigation.
+
+`params` or `searchParams` accessed outside of `<Suspense>` may prevent the navigation from being instant, leading to a slower user experience.
+
+Ways to fix this:
+  - [stream] Provide a placeholder with `<Suspense fallback={...}>` around the data access
+  - [block] Set `export const instant = false` to allow a blocking route
+
+Learn more: https://nextjs.org/docs/messages/instant-shell-url-data
+```
+
+- **T3.4 step 2, decision rule.** `npm run build` passed (30 static pages). Route table: `/` static; `/atelier`, `/find`, `/picks` and `/piece/[sku]` (22 paths) are `◐ Partial Prerender`. `next start` on port 3117: `/find` answered in 0.22 s, `/atelier` 0.06 s, `/piece/TNZ-1056` 0.08 s (total, including matching and render), and the HTML carries the skip link and a `<template id="B:0">` for the streamed body. The navigation could not be watched in a browser (none installed), so "no blank or blocked UI" rests on those timings, not on a screen. Decision **(a)**. Reason: the recipient model and filters live in the URL by design (REQ-CV-18), so these four pages depend on request data by construction; the server answers in under 100 ms; a Suspense fallback (b) would be an empty box on a two-second journey and `/picks` redirects from inside the streamed body. **Build unaffected:** the build output before and after the change is the same table.
+- **T3.4 step 3.** `export const instant = false;` with a comment citing design §8 and REQ-PD-47 on the four pages.
+- **T3.4 step 4, re-run on dev after the change.** All five routes 200. The warning count in the dev log is 0. `/picks` without `m`: 200 with `<meta http-equiv="refresh" content="1;url=/find"/>`. `/picks?m=garbage`: 200 with `content="1;url=/find?notice=incomplete"`. Golden 1 picks in order: TBZ-1013, TNZ-1056, TBZ-1017. Titles per route as REQ-PD-53 expects. Dev server killed, no listener on 3116 or 3117, `/tmp/dev-pd.log` and every other temp file removed.
+- **Q-PD10:** answered, (a). Open only if the manual pass finds the reveal visibly slow, then option (c) (`prefetch={true}` on "Reveal my picks") per design §8.1.
+- **Checks:** `npm test` 1502/1502; typecheck clean; lint 0 errors (the same 1 warning in `packages/mcp-catalog`); `validate-catalog` OK (22 products, 2 existing width warnings); `npm run build` passes after T3.4; the four grep gates print 0; no `coverage/`, no server, no temp file.
+- **New spec questions:** Q-PD18 (above, rupee amounts that are budget bands). The path for `partialPrefetching.md` in the tasks header is wrong (`05-config/01-next-config-js/` does not exist under `01-app/` in this version).
+
+### 2026-11-21 — Session 15: polish-deploy Wave 4, acceptance, manual checklist, audit, design lock (T4.1 to T4.3, T4.5, T4.6) (Kiro, non-interactive) — COMPLETED
+
+T4.4 skipped on purpose (no human keyboard pass, so no slider step buttons; Q-PD8 stays open). Nothing committed or pushed. No CI file added.
+
+- **Spec files (line counts):** `.kiro/specs/polish-deploy/requirements.md` 223, `design.md` 489, `tasks.md` 113.
+- **T4.1 dev-server checks** (port 3116, `npm run dev`, log in `/tmp/dev-pd.log`, golden-1 model in `m`). All routes answered 200. Observed:
+
+| Route | `<title>` | `lang="en"` | `main-content` | `<h1` | Skip link before first `<h1` (byte offsets) | "Opens in a new tab" |
+|---|---|---|---|---|---|---|
+| `/` | Haunted Gift Atelier — Tiny Tiaraa | 1 | 1 | 1 | 1308 < 4150 | 1 |
+| `/find` | Find a gift \| Haunted Gift Atelier | 1 | 1 | 1 | 1306 < 3040 | 1 |
+| `/picks?m=<golden 1>` | Your picks \| Haunted Gift Atelier | 1 | 1 | 1 | 1305 < 2127 | 1 |
+| `/atelier` | The atelier \| Haunted Gift Atelier | 1 | 1 | 1 | 1306 < 2126 | 1 |
+| `/piece/TNZ-1056` | Blue Evil Eye Nazariya – 925 Silver Baby Bracelet \| Haunted Gift Atelier | 1 | 1 | 1 | 1342 < 3312 | 1 |
+| `/piece/TNZ-1058` | Red Square Evil Eye Nazariya – 925 Silver Baby Bracelet (out of stock) \| Haunted Gift Atelier | 1 | 1 | 1 | 1369 < 3339 | 1 |
+| `/piece/NOPE-0000` | Piece not found \| Haunted Gift Atelier (status 200, `noindex` 1) | 1 | **0** | **0** | skip link at 1394, no `<h1` | **0** |
+
+  Every title equals the REQ-PD-53 expectation. **The one number that differs is `/piece/NOPE-0000`** (expected 1, 1, 1 like the others, observed 0, 0, 0). Explanation: the dev server logs "Switched to client rendering because the server rendering errored: NEXT_HTTP_ERROR_FALLBACK;404", so the served HTML has the title, the robots tag and the skip link, and the not-found body is client-rendered. The component has `main-content` and an `h1` (its test passes). A production `next start`, checked once in T4.5, gives HTTP 404 (not 200) with the same missing elements in the HTML. Not changed; recorded as observation O-1 in `docs/qa-reports/polish-m4-audit.md` and as a manual-checklist line. Status 200 plus `noindex` in dev stays the accepted Q15 behaviour.
+
+  | Check | Expected | Observed |
+  |---|---|---|
+  | `/piece/TNZ-1056`: approximate-size label | 1 | 1 |
+  | `/piece/TNZ-1056`: "true size" (case-insensitive, `true[- ]size`) | 1 | 1 |
+  | `/piece/TNZ-1056`: fit-check line | 1 | 1 |
+  | `/piece/TNZ-1058`: "Buy on Tiny Tiaraa", "Wrap this gift", "tinytiaraa.com/product" | 0 | 0 |
+  | Golden 1 pick order on `/picks?m=…` | TBZ-1013, TNZ-1056, TBZ-1017 | TBZ-1013, TNZ-1056, TBZ-1017 |
+  | `/picks` with no `m`: status; meta-refresh count | 200; at least 1 | 200; 1 |
+  | `/atelier`: "Buy on Tiny Tiaraa" | 21 | 21 |
+  | Landing served HTML: `text-gold` or `<img` | 0 | 0 |
+  | Instant-warning lines in the dev log (`instant-shell-url-data`) | 0 | 0 |
+
+  Server killed (the `next-server` child needed a second kill). Afterwards nothing listened on 3116 or 3117, and `/tmp/dev-pd.pid`, `/tmp/dev-pd.log`, `/tmp/picks-nom.html` were deleted.
+- **T4.2 whole suite:** `npm test` **1502/1502 in 55 files** (953 at the M3 close-out; 1067 after Wave 1 and 2; 1331 after T3.1/T3.2; 1502 after T3.3; +549 over M3). `npm run typecheck` clean. `npm run lint` 0 errors (1 existing warning, `AgeBand` in `packages/mcp-catalog`). `npm run validate-catalog` OK (22 products, 2 existing width warnings). **`npm run build` passes** (30 static pages; `/` static; `/atelier`, `/find`, `/picks`, `/piece/[sku]` ×22 Partial Prerender; same table as before T3.4). `lib/page-meta.ts` coverage 100% statements, branches, functions, lines (30 tests); `coverage/` removed.
+- **T4.3:** `docs/qa-reports/polish-m4.md` finished (baseline kept; automated results; test-setup table; each manual section as a table, every result NOT RUN; REQ-PD-45 grid for 5 journey screens and 5 piece categories). It says the T4.3 physical calibration stays not run and that no number is invented. No headless browser (`chromium`, `google-chrome`, `chromium-browser`, `chrome`, `firefox` absent, no Playwright cache), so "screenshots not run" and `docs/qa-reports/screenshots-m4/` does not exist.
+- **T4.5 audit:** `docs/qa-reports/polish-m4-audit.md`. 15 checks, all pass. It used the catalog MCP server through the Kiro MCP client: `catalog_get` ×22 (all names compared with the rendered `alt` on piece, browse and pick views: 0 mismatches) and `matching_explain` ×1 (golden 1: TBZ-1013, TNZ-1056, TBZ-1017, scores 6, 6, 6). Two observations (O-1 above, O-2 a decorative `opacity-20` on the hero cobweb) and the known Q-PD18. No defect was fixed in this pass. Note: the audit was done by the builder session, not by the `qa-auditor` agent, so it is not independent of the build.
+- **Axe decision (T0.1, Q-PD11):** `axe-core` 4.14.1 called directly through `tests/helpers/axe.ts`. `vitest-axe` and the role-only fallback were not needed. Page-level rules are inapplicable on a container and are carried by role queries and static tests. Matrix: 72 states, 0 violations (T3.1).
+- **Test count before and after:** 953 (M3 close-out) before, 1502 after (+549, 10 new test files in `tests/` plus 7 new helper files, and 4 edited test files). No test removed or loosened.
+- **Assertion updates (design §7.5, REQ-PD-49), all listed:** `tests/atelier.ui.test.tsx` `text-plum/50` to `text-plum/75`; `tests/gift-wrap.ui.test.tsx` `border-plum/30` to `border-plum/60`; `tests/true-size.ui.test.tsx` the drawing's `role="img"` to `aria-hidden="true"` (Q-PD7); `tests/conversation.property.test.ts` moved `legalActions` into `tests/helpers/conversation-actions.ts` (a move, no change of what it generates).
+- **Instant warning (T3.4, Q-PD10):** reproduced on `/find`, `/picks`, `/atelier`, `/piece/[sku]`, not `/`. Decision (a): `export const instant = false` with a comment on those four pages. Reason: the model and filters live in the URL by design (REQ-CV-18), the server answers in under 100 ms, and a Suspense fallback would be an empty box. Build output unchanged. `/picks` redirects and golden 1 unchanged. Re-checked in this session: 0 warnings in the dev log.
+- **Agent runs:** the component and route edits of Waves 1 and 2 are recorded in the session 12, 13a and 13b entries above (see them for which agent wrote what); the `qa-auditor` agent (QA) did not run in this session, the audit was written by the builder (see T4.5). MCP calls this session: `catalog_get` ×22, `matching_explain` ×1 (all matched the data and the golden case). Hook firings observed: 0.
+- **Counterexamples and fixes in Milestone 4:** (1) P-PD-4 "name exactly once" failed for the generated name `a`: test-generator fix (assert by position), not a product change. (2) P-PD-4 digit rule hit "18KT gold": spec question SQ-1 (session 12). (3) T3.3 contrast scan found `components/SizeOutlines.tsx` line 131, the credit-card reference drawing, at `border-plum/40` (2.2:1): fixed to `border-plum/60` (REQ-PD-26 names the size drawings). Reference-card border fix = this one. (4) T3.3 test-side errors fixed without loosening: the discount pattern first matched "turn off" and "75% gold", so it now names discount forms only. No property counterexample reached product behaviour; the M1 to M3 total of 3 is unchanged.
+- **Design lock (REQ-PD-52), "visual language frozen" as of the end of this pass; a later change is a spec change:**
+  - *Token block* (`app/globals.css` `@theme`): `pearl #FAF7F2`, `blush #F7E8E4`, `champagne #F5EDD8`, `sage #DCE8DD`, `gold #C9A227`, `plum #3D2C3A`; fonts `--font-display` (Cormorant) and `--font-sans` (Inter); `--tracking-eyebrow 0.2em`; `--shadow-card` (derived from plum with `color-mix`); `--focus-ring-width 2px`; `--focus-ring-offset 2px`. Text is plum or pearl, plum alpha 75 or more; gold is decorative only; control borders `plum/60`, decorative borders `plum/10` or `/15`.
+  - *Type scale:* page `h1` `text-3xl sm:text-4xl` (landing `text-4xl sm:text-6xl`); section `h2` `text-2xl` (cards `text-xl`); body `text-base`; secondary `text-sm`; `text-xs` only for eyebrows and the "Source:" line; headings and wordmark in the display serif, the rest sans; nothing under 12 px.
+  - *Spacing and radii:* container `mx-auto w-full max-w-6xl px-6 sm:px-10`; `gap-6` between sections, `py-8` page padding, `py-14` landing bands; radii `rounded-2xl` (panels, inputs), `rounded-3xl` (product cards), `rounded-full` (buttons, chips, badges).
+  - *Focus rule:* one global `:focus-visible` outline, `var(--focus-ring-width)` solid plum, offset `var(--focus-ring-offset)`, an outline (not a box-shadow) so it survives forced colours; `outline-none` only on `tabIndex={-1}` targets; one global `prefers-reduced-motion` rule neutralises animation, transition and smooth scroll.
+- **Steering update pending approval:** `.kiro/steering/structure.md` was NOT edited. It needs coordinator approval to list `SiteHeader`, `SkipLink`, `ActionButton`, `CobwebCorner`, `lib/page-meta.ts`, and the new test files (`a11y.axe`, `a11y.keyboard`, `a11y.contrast`, `a11y.static`, `a11y.targets`, `page-meta.*`, `polish.*`, and the `tests/helpers/` files).
+- **Open questions for the Tue 24 Nov checkpoint (Q-PD1 to Q-PD18):**
+  - Q-PD1 out-of-stock text `text-plum/75` instead of `/50` (done as assumed). Q-PD2 gold decorative only (done). Q-PD3 every control border 3:1, strict (done; the visual review may soften other things). Q-PD4 `aria-describedby` on repeated links (done). Q-PD5 fit-check region name unchanged (open until the screen-reader pass). Q-PD6 wrap writes a status and moves focus, possible double speech (open until the screen-reader pass). Q-PD7 drawings `aria-hidden` (done; builder may veto).
+  - Q-PD8 slider step buttons: **open**, T4.4 skipped, native Page/Home/End only, needs a human keyboard pass.
+  - Q-PD9 cobweb corners built, hero only (builder may drop). Q-PD10 **answered (a)**, `instant = false`; reopen only if the reveal feels slow (option c). Q-PD11 `axe-core` direct (answered, works). Q-PD12 no price in titles. Q-PD13 header link "← Back to the atelier" to `/` unchanged. Q-PD14 no headless browser; screenshots not run. Q-PD15 `design-polish` cannot write `tests/**` or `lib/**` (tasks split by owner). Q-PD16 `/about` is in `structure.md` but has no route; out of scope.
+  - Q-PD17 **spec wording only:** the paths in the tasks header for `partialPrefetching.md` do not exist in this Next.js version (content found in `instant-navigation.md`); fix the wording, no code change.
+  - Q-PD18 **new:** REQ-PD-15 says every `₹` node carries the footnote, but budget bands, budget chips, recipient-card lines and the pinned relaxation disclosure contain `₹` and cannot without a copy change; the copy test exempts band shapes and text that says "budget". Builder decides: keep the exemption (amend REQ-PD-15) or change the pinned copy.
+  - Also for the checkpoint: observation O-1 (`/piece/NOPE-0000` has no `main-content` or `h1` in the served HTML; 200 in dev, 404 in production; update the Q15 note). Manual checks and the T4.3 physical calibration remain NOT RUN.
+- **Final tree state:** `git status` shows only intended changes (Waves 0 to 4 uncommitted, plus `docs/qa-reports/polish-m4.md`, `polish-m4-audit.md` and this entry). No `coverage/`, no dev server, no temp file, no spike file.
+
 ## Counts (running totals)
 
 | Metric | Count |
 |---|---|
-| Kiro sessions (non-interactive CLI) | 19 (M1: 8; M2: 6 — session 4 spec, 5a Wave 1, 5b Wave 2, 5c Wave 3, 5d Wave 4, session 6 Wave 5; M3: 5 — session 7 specs, session 8 safety-verdict, session 9 true-size-viewer, session 10 gift-presentation, session 10b retry Wave 4) |
-| Kiro sessions completed successfully | 18 (M1: 7 + session 1 interrupted; M2: 6 of 6; M3: 5 — session 10 completed with T4.4/T4.5 outstanding, closed by the 10b retry) |
-| MCP server calls | 5 via a Kiro MCP client (`matching_explain` × 4 — 3 in session 6, 1 in 10b, all matching the golden cases; `catalog_get` × 1 in 10b for TNZ-1058). `catalog_search`, `catalog_validate` still 0 live client calls (M1 smoke tests used piped JSON-RPC). |
+| Kiro sessions (non-interactive CLI) | 26 (M1: 8; M2: 6 — session 4 spec, 5a Wave 1, 5b Wave 2, 5c Wave 3, 5d Wave 4, session 6 Wave 5; M3: 5 — session 7 specs, session 8 safety-verdict, session 9 true-size-viewer, session 10 gift-presentation, session 10b retry Wave 4; M4: 7 — session 11 spec, 12 Wave 0+1, 13a Wave 2 part 1, 13b Wave 2 part 2, 14a Wave 3 part 1, 14b Wave 3 part 2, 15 Wave 4) |
+| Kiro sessions completed successfully | 25 (M1: 7 + session 1 interrupted; M2: 6 of 6; M3: 5; M4: 7 of 7) |
+| MCP server calls | 28 via a Kiro MCP client (`matching_explain` × 5 — 3 in session 6, 1 in 10b, 1 in session 15, all matching the golden cases; `catalog_get` × 23 — 1 in 10b for TNZ-1058, 22 in session 15 for the T4.5 audit alt check). `catalog_search`, `catalog_validate` still 0 live client calls (M1 smoke tests used piped JSON-RPC). |
 | Hook firings observed | 0 (hooks defined in M1; CLI firing unverified — T4.2 and T5.1 attempts could not observe firing from the CLI; both hooks' commands were verified to fail visibly by hand) |
-| Property-test counterexamples found | 3 (M1: 2; M2: 1 — Wave 1 `normalize()` adultIsMom leftover, fixed in the implementation with a regression test; M3: 0 property counterexamples — session 9 fixed 2 boundary bugs found in unit tests, not property tests) |
+| Property-test counterexamples found | 3 (M1: 2; M2: 1 — Wave 1 `normalize()` adultIsMom leftover, fixed in the implementation with a regression test; M3: 0 property counterexamples — session 9 fixed 2 boundary bugs found in unit tests, not property tests; M4: 0 product counterexamples — the P-PD-4 "name exactly once" failure was a test-generator fix, and the T3.3 SizeOutlines border was found by the contrast scan, not a property test) |
+
+### Coordinator verification, 21 Nov 2026 (direct work, not a Kiro session)
+
+- Re-ran independently after Session 15: `npm test` **1502/1502 in 55 files**, `npm run build` passes (30 static pages; same route table). Typecheck clean, lint 0 errors + 1 existing warning, `validate-catalog` OK — all re-verified after Session 14b; Session 15 changed docs only.
+- Re-ran the T4.1 dev-server check independently on port 3116: `/piece/NOPE-0000` returns 200, title "Piece not found | Haunted Gift Atelier", `main-content` 0, `<h1` 0, `noindex` 1, skip link 1; control `/piece/TNZ-1056` gives `main-content` 1, `<h1` 1; 0 instant warnings. Confirms O-1. The component `app/piece/[sku]/not-found.tsx` does render `main id="main-content"` and an `h1`, so the served-HTML gap is the Next.js client-rendering fallback on the 404, not a missing component. Carried to M6 (per the brief, the NOPE-0000 fallback stays for the M6 clean-browser pass); whether a browser shows the heading after hydration is on the manual checklist.
+- Counts table above updated by the coordinator (was stale at the M3 numbers: 19 sessions, 18 completed, 5 MCP calls). New totals: 26 sessions, 25 completed, 28 MCP calls.
+- Steering update approved by the coordinator and applied directly: `.kiro/steering/structure.md` now lists `SiteHeader`, `SkipLink`, `ActionButton`, `CobwebCorner`, `lib/page-meta.ts`, the `a11y.*` / `page-meta.*` / `polish.*` test files and `tests/helpers/`, plus the `polish-deploy` spec map. No other steering change.
+- Audit independence caveat stands: the T4.5 audit was written by the builder session, not the `qa-auditor` agent.
 
 ## Notes
 

@@ -280,7 +280,8 @@ describe("SizeOutlines", () => {
     const ring = () => screen.getByTestId("size-ring-bracelet");
     expect(Math.abs(Number(ring().getAttribute("width")) - 212.32)).toBeLessThan(0.01);
     expect(Number(ring().getAttribute("width"))).toBeCloseTo(mmToPx(133.4 / Math.PI, 5), 9);
-    expect(ring()).toHaveAttribute("role", "img");
+    // REQ-PD-49 / Q-PD7: the drawing is aria-hidden (its figcaption says the same sentence); the label stays as an attribute.
+    expect(ring()).toHaveAttribute("aria-hidden", "true");
     expect(ring()).toHaveAttribute("aria-label", "ring outline, approximate size — 5.25 in around");
     expect(screen.getByText("ring outline, approximate size — 5.25 in around")).toBeInTheDocument();
     const circle = ring().querySelector("circle") as SVGElement;

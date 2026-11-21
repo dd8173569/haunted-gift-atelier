@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
 import { Cormorant_Garamond, Inter } from "next/font/google";
+import SkipLink from "../components/SkipLink";
+import { SITE_TITLE, TITLE_TEMPLATE } from "../lib/page-meta";
 import "./globals.css";
 
 const display = Cormorant_Garamond({
@@ -15,7 +17,7 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Haunted Gift Atelier — Tiny Tiaraa",
+  title: { default: SITE_TITLE, template: TITLE_TEMPLATE },
   description:
     "Find the right baby-jewelry gift by conversation — then get a plain-language fit check, see it at a size you calibrate, and wrap it beautifully. Real catalog: Tiny Tiaraa.",
 };
@@ -27,6 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${display.variable} ${sans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-pearl text-plum font-sans">
+        <SkipLink />
         {/* searchParams on /find, /picks and /atelier is runtime data; Cache Components needs a
             Suspense boundary above it or the prerender of the route fails. */}
         <Suspense fallback={null}>{children}</Suspense>

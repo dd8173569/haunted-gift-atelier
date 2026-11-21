@@ -12,18 +12,21 @@ import ProductPhoto from "./ProductPhoto";
    (REQ-GP-11). */
 export default function BrowseCard({ item }: { item: BrowseItem }) {
   const inStock = item.availability === "In Stock";
+  const nameId = `browse-${item.sku}-name`;
   return (
     <article
       data-sku={item.sku}
-      className={`flex flex-col gap-3 rounded-3xl p-4 ${
-        inStock ? "bg-blush/50" : "bg-plum/5 text-plum/50"
+      className={`flex flex-col gap-3 rounded-3xl p-4 shadow-card ${
+        inStock ? "bg-blush/50" : "bg-plum/5 text-plum/75"
       }`}
     >
       <ProductPhoto src={item.imageSrc} alt={item.name} />
       <div className="flex items-start justify-between gap-2">
-        <h2 className="font-display text-lg font-semibold">{item.name}</h2>
+        <h2 id={nameId} className="font-display text-lg font-semibold">
+          {item.name}
+        </h2>
         {!inStock && (
-          <span className="shrink-0 rounded-full border border-plum/30 px-3 py-1 text-xs font-medium">
+          <span className="shrink-0 rounded-full border border-plum/60 px-3 py-1 text-xs font-medium">
             Out of stock
           </span>
         )}
@@ -36,11 +39,11 @@ export default function BrowseCard({ item }: { item: BrowseItem }) {
         {item.category} · {METAL_LABEL[item.metal]}
       </p>
       <div className="mt-auto flex flex-col gap-2 pt-2">
-        <AtelierButton href={pieceHref(item.sku)} variant="secondary">
+        <AtelierButton href={pieceHref(item.sku)} variant="secondary" describedBy={nameId}>
           See details
         </AtelierButton>
         {inStock && (
-          <AtelierButton href={item.url} external>
+          <AtelierButton href={item.url} external describedBy={nameId}>
             Buy on Tiny Tiaraa ↗
           </AtelierButton>
         )}

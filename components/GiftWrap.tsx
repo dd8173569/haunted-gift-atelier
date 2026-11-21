@@ -6,6 +6,7 @@
 // url, verbatim, in every phase, so nobody has to play the animation to buy.
 import { useEffect, useId, useRef, useState } from "react";
 import { MESSAGE_MAX_LENGTH, WRAP_REVEAL_MS, type CardTone, type Presentation } from "../lib/gift-message";
+import ActionButton from "./ActionButton";
 import AtelierButton from "./AtelierButton";
 
 type Phase = "idle" | "wrapping" | "revealed";
@@ -27,11 +28,6 @@ const TONE_CLASS: Record<CardTone, string> = {
   champagne: "bg-champagne",
   sage: "bg-sage",
 };
-
-const primaryButton =
-  "h-12 w-fit rounded-full bg-plum px-8 text-base font-medium text-pearl transition-colors hover:bg-plum/85";
-const secondaryButton =
-  "h-11 w-fit rounded-full border border-plum/30 px-6 text-sm font-medium text-plum transition-colors hover:bg-blush";
 
 function GiftBox({ wrapping }: { wrapping: boolean }) {
   return (
@@ -63,6 +59,7 @@ export default function GiftWrap({ name, url, initialMessage, presentation }: Gi
   const [message, setMessage] = useState(initialMessage);
   const [copy, setCopy] = useState<CopyState>("idle");
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const skipRef = useRef<HTMLButtonElement>(null);
   const messageId = useId();
   const cardTitleId = useId();
 
@@ -73,7 +70,10 @@ export default function GiftWrap({ name, url, initialMessage, presentation }: Gi
     return () => clearTimeout(t);
   }, [phase]);
 
+  // Focus hand-offs (REQ-PD-23): "Wrap this gift" unmounts when wrapping starts, so focus goes to
+  // "Skip"; at revealed it goes to the card heading.
   useEffect(() => {
+    if (phase === "wrapping") skipRef.current?.focus();
     if (phase === "revealed") headingRef.current?.focus();
   }, [phase]);
 
@@ -106,31 +106,32 @@ export default function GiftWrap({ name, url, initialMessage, presentation }: Gi
       {phase !== "revealed" && <GiftBox wrapping={phase === "wrapping"} />}
 
       {phase === "idle" && (
-        <button type="button" className={primaryButton} onClick={wrap}>
+        <ActionButton size="lg" className="w-fit" onClick={wrap}>
           Wrap this gift
-        </button>
+        </ActionButton>
       )}
 
+      {/* One persistent live region: present from the first render, text swapped in (REQ-PD-22). */}
+      <div role="status" data-testid="wrap-status" className="text-sm font-medium">
+        {phase === "wrapping" ? "Wrapping your gift…" : phase === "revealed" ? "Your gift is wrapped" : ""}
+      </div>
+
       {phase === "wrapping" && (
-        <div className="flex flex-wrap items-center gap-4">
-          <p role="status" className="text-sm font-medium">
-            Wrapping your gift…
-          </p>
-          <button type="button" className={secondaryButton} onClick={() => setPhase("revealed")}>
-            Skip
-          </button>
-        </div>
+        <ActionButton
+          ref={skipRef}
+          variant="secondary"
+          className="w-fit"
+          onClick={() => setPhase("revealed")}
+        >
+          Skip
+        </ActionButton>
       )}
 
       {phase === "revealed" && (
         <>
-          <p role="status" className="text-sm font-medium">
-            Your gift is wrapped
-          </p>
-
           <article
             aria-labelledby={cardTitleId}
-            className={`wrap-card-in rounded-2xl border border-plum/15 p-6 ${TONE_CLASS[presentation.tone]}`}
+            className={`wrap-card-in rounded-2xl border border-plum/60 p-6 ${TONE_CLASS[presentation.tone]}`}
           >
             <h3
               id={cardTitleId}
@@ -158,27 +159,26 @@ export default function GiftWrap({ name, url, initialMessage, presentation }: Gi
                 setMessage(e.target.value);
                 setCopy("idle");
               }}
-              className="w-full rounded-xl border border-plum/30 bg-pearl p-3 text-base leading-relaxed text-plum"
+              className="w-full rounded-xl border border-plum/60 bg-pearl p-3 text-base leading-relaxed text-plum"
             />
             <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                className={secondaryButton}
+              <ActionButton
+                variant="secondary"
                 onClick={() => {
                   setMessage(initialMessage);
                   setCopy("idle");
                 }}
               >
                 Reset to draft
-              </button>
-              <button type="button" className={secondaryButton} onClick={copyMessage}>
+              </ActionButton>
+              <ActionButton variant="secondary" onClick={copyMessage}>
                 Copy message
-              </button>
+              </ActionButton>
               <p role="status" className="text-sm">
                 {copy === "ok" ? "Copied" : copy === "fail" ? "Select the text and copy it yourself." : ""}
               </p>
             </div>
-            <p className="text-xs text-plum/60">
+            <p className="text-sm text-plum/75">
               Your message stays on this page. It is not sent to us or to the store.
             </p>
           </div>

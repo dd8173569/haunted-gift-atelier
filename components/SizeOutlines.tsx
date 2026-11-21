@@ -2,7 +2,8 @@
 
 // Boxes, ring, height line and the reference card (true-size-viewer design §5.3).
 // Every drawn size is exactly mmToPx(mm, factor): no rounding, no transform, no zoom.
-// Captions sit below the drawing, never over a photo.
+// Captions sit below the drawing, never over a photo. A drawing is aria-hidden because its
+// figcaption already says the same sentence (REQ-PD-29, Q-PD7); the label stays as an attribute.
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import type { SizeItem, SizeSpec } from "../lib/size-spec";
@@ -36,7 +37,7 @@ function Drawing({
     return (
       <div
         data-testid={`size-box-${item.id}`}
-        {...(item.photoInside ? {} : { role: "img", "aria-label": caption })}
+        {...(item.photoInside ? {} : { "aria-hidden": true, "aria-label": caption })}
         className="relative box-border border border-plum/60 bg-pearl"
         style={{ width, height }}
       >
@@ -58,7 +59,7 @@ function Drawing({
     return (
       <svg
         data-testid="size-line"
-        role="img"
+        aria-hidden="true"
         aria-label={caption}
         width={LINE_CAP_PX}
         height={height}
@@ -76,7 +77,7 @@ function Drawing({
   return (
     <svg
       data-testid={`size-ring-${item.id}`}
-      role="img"
+      aria-hidden="true"
       aria-label={caption}
       width={d}
       height={d}
@@ -118,7 +119,7 @@ export default function SizeOutlines({ spec, factor, calibrated }: SizeOutlinesP
               <Drawing item={item} spec={spec} factor={factor} caption={caption} />
               <figcaption className="flex flex-col gap-1">
                 <p className="text-sm text-plum">{caption}</p>
-                <p className="text-xs text-plum/70">{item.detail}</p>
+                <p className="text-sm text-plum/75">{item.detail}</p>
               </figcaption>
             </figure>
           );
@@ -127,13 +128,13 @@ export default function SizeOutlines({ spec, factor, calibrated }: SizeOutlinesP
           <div
             data-testid="reference-card"
             aria-hidden="true"
-            className="box-border border border-plum/40 bg-champagne/40"
+            className="box-border border border-plum/60 bg-champagne/40"
             style={{
               width: upright ? card.short : card.long,
               height: upright ? card.long : card.short,
             }}
           />
-          <figcaption className="text-xs text-plum/70">{REFERENCE_CARD_LABEL}</figcaption>
+          <figcaption className="text-sm text-plum/75">{REFERENCE_CARD_LABEL}</figcaption>
         </figure>
       </div>
     </div>

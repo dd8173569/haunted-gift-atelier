@@ -6,8 +6,9 @@
 //
 // Wording rule (REQ-TS-12): before calibration, "true size" appears only inside the one label
 // below. Nothing else in this file's output may contain it in the approximate or stale modes.
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { SizeSpec } from "../lib/size-spec";
+import ActionButton from "./ActionButton";
 import CalibrationSlider from "./CalibrationSlider";
 import SizeOutlines from "./SizeOutlines";
 import SizeRuler from "./SizeRuler";
@@ -17,15 +18,23 @@ const APPROXIMATE_LABEL = "Approximate size — calibrate with a card for true s
 const STALE_NOTE =
   "Your browser zoom or screen changed since you calibrated, so sizes are approximate again. Calibrate again to restore them.";
 
-const buttonClass =
-  "h-11 w-fit rounded-full border border-plum/30 px-6 text-sm font-medium text-plum transition-colors hover:bg-champagne";
-const primaryButtonClass =
-  "h-11 w-fit rounded-full bg-plum px-6 text-sm font-medium text-pearl transition-colors hover:bg-plum/85";
-
 export default function TrueSizeViewer({ spec }: { spec: SizeSpec }) {
   const { mode, factor, calibrate, reset } = useCalibration();
   const [calibrating, setCalibrating] = useState(false);
   const calibrated = mode === "calibrated";
+  // Focus hand-off (REQ-PD-23): the button that had focus unmounts, so the handler names the
+  // button that renders next, and that button's ref callback focuses it as it mounts. (No effect
+  // hooks in this file: tests/true-size.static.test.ts forbids them.)
+  const pendingFocus = useRef<"calibrate" | "reset" | null>(null);
+  const focusIfPending = useCallback(
+    (which: "calibrate" | "reset") => (el: HTMLButtonElement | null) => {
+      if (el && pendingFocus.current === which) {
+        pendingFocus.current = null;
+        el.focus();
+      }
+    },
+    [],
+  );
 
   return (
     <section
@@ -38,39 +47,47 @@ export default function TrueSizeViewer({ spec }: { spec: SizeSpec }) {
       </h2>
 
       <div className="flex flex-col gap-3 print:hidden">
-        {mode === "stale" ? <p className="text-sm text-plum">{STALE_NOTE}</p> : null}
-        {calibrated ? (
-          <>
+        {/* One persistent live region: it exists before its text changes (REQ-PD-22). */}
+        <div role="status" data-testid="size-status" className="flex flex-col gap-3">
+          {mode === "stale" ? <p className="text-sm text-plum">{STALE_NOTE}</p> : null}
+          {calibrated ? (
             <p className="text-sm font-medium text-plum">Calibrated to your screen</p>
-            <button
-              type="button"
-              className={buttonClass}
-              onClick={() => {
-                reset();
-                setCalibrating(false);
-              }}
-            >
-              Reset calibration
-            </button>
-          </>
-        ) : (
-          <>
+          ) : (
             <p className="text-sm font-medium text-plum">{APPROXIMATE_LABEL}</p>
-            {calibrating ? null : (
-              <button type="button" className={primaryButtonClass} onClick={() => setCalibrating(true)}>
-                Calibrate with a card
-              </button>
-            )}
-          </>
+          )}
+        </div>
+        {calibrated ? (
+          <ActionButton
+            ref={focusIfPending("reset")}
+            variant="secondary"
+            className="w-fit"
+            onClick={() => {
+              pendingFocus.current = "calibrate";
+              reset();
+              setCalibrating(false);
+            }}
+          >
+            Reset calibration
+          </ActionButton>
+        ) : calibrating ? null : (
+          <ActionButton ref={focusIfPending("calibrate")} className="w-fit" onClick={() => setCalibrating(true)}>
+            Calibrate with a card
+          </ActionButton>
         )}
       </div>
 
       {calibrating ? (
         <CalibrationSlider
           onConfirm={(longEdgePx) => {
-            if (calibrate(longEdgePx)) setCalibrating(false);
+            if (calibrate(longEdgePx)) {
+              pendingFocus.current = "reset";
+              setCalibrating(false);
+            }
           }}
-          onCancel={() => setCalibrating(false)}
+          onCancel={() => {
+            pendingFocus.current = "calibrate";
+            setCalibrating(false);
+          }}
         />
       ) : null}
 

@@ -7,17 +7,11 @@ import {
   CATEGORIES,
   METALS,
   OCCASIONS,
-  applicable,
   ORDER,
   RELATIONSHIPS,
   SYMBOL_CHOICES,
   SYMBOL_KEYS,
-  CATEGORY_CHIPS,
-  METAL_CHIPS,
-  BUDGET_CHIPS,
   OCCASION_CHIPS,
-  RELATIONSHIP_CHIPS,
-  SYMBOL_CHIPS,
   chipForYears,
   describeModel,
   firstUnansweredQuestion,
@@ -47,6 +41,7 @@ import {
 } from "../lib/browse";
 import { catalog } from "./helpers/matching-fixtures";
 import { age, run, rel, occ, budget, metal, sym, cat, adultIsMom } from "./helpers/conversation-taps";
+import { legalActions } from "./helpers/conversation-actions";
 
 const SEED = 20261121;
 const RUNS = 300;
@@ -54,48 +49,6 @@ const assert = <T extends unknown[]>(p: fc.IPropertyWithHooks<T>, numRuns = RUNS
   fc.assert(p, { seed: SEED, numRuns });
 
 // ---------------------------------------------------------------- generators
-
-/** Every action the UI could send from this state (plus back, edit, restart). */
-function legalActions(s: ConversationState): Action[] {
-  const out: Action[] = [{ type: "back" }, { type: "restart" }];
-  switch (s.step) {
-    case "relationship":
-      out.push(...RELATIONSHIP_CHIPS.map((c) => rel(c.value)));
-      break;
-    case "age":
-      out.push(...AGE_CHIPS.map((c) => age(c.id)));
-      break;
-    case "adult-check":
-      out.push(adultIsMom(true), adultIsMom(false));
-      break;
-    case "occasion":
-      out.push(...OCCASION_CHIPS.map((c) => occ(c.value)));
-      break;
-    case "budget":
-      out.push(...BUDGET_CHIPS.map((c) => budget(c.value)));
-      break;
-    case "metal":
-      out.push(...METAL_CHIPS.map((c) => metal(c.value)));
-      break;
-    case "symbols":
-      out.push(...SYMBOL_CHIPS.map((c) => sym(c.value)));
-      if (s.answers.symbols === "religious") {
-        out.push(...SYMBOL_KEYS.map((key) => ({ type: "toggle-symbol", key }) as Action), { type: "continue" });
-      }
-      break;
-    case "category":
-      out.push(...CATEGORY_CHIPS.map((c) => cat(c.value)));
-      break;
-    case "card":
-    case "adult-end":
-      break;
-  }
-  // The UI offers Edit only on the card.
-  if (s.step === "card") {
-    out.push(...ORDER.filter((q) => applicable(q, s.answers)).map((question) => ({ type: "edit", question }) as Action));
-  }
-  return out;
-}
 
 const arbIndexes = fc.array(fc.nat(10_000), { maxLength: 60 });
 type Trace = { before: ConversationState; action: Action; after: ConversationState }[];

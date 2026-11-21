@@ -215,7 +215,8 @@ describe("buy link, P-GP-1 / REQ-GP-25", () => {
         expect(links[0].getAttribute("href"), p.sku).toBe(p.url);
         expect(links[0].getAttribute("target")).toBe("_blank");
         expect(links[0].getAttribute("rel")).toContain("noopener");
-        expect(links[0].className).toContain(variant === "primary" ? "bg-plum" : "border-plum/30");
+        // REQ-PD-49: the secondary border moved from border-plum/30 (1.76:1) to border-plum/60 (3.46:1 or more) for non-text contrast (REQ-PD-26).
+        expect(links[0].className).toContain(variant === "primary" ? "bg-plum" : "border-plum/60");
       };
       check("secondary"); // idle
       fireEvent.click(wrapButton());

@@ -1,13 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import AtelierButton from "../../components/AtelierButton";
 import DisclosureNote from "../../components/DisclosureNote";
 import PickCard from "../../components/PickCard";
+import SiteHeader from "../../components/SiteHeader";
 import { describeModel, momSkipNote } from "../../lib/conversation";
 import { catalog } from "../../lib/catalog-store";
 import { match } from "../../lib/matching";
 import { modelHref, parseModelParam, pieceHref } from "../../lib/model-param";
+import { ROUTE_TITLES } from "../../lib/page-meta";
 import { toPickViews } from "../../lib/picks-view";
+
+export const metadata: Metadata = { title: ROUTE_TITLES.picks };
+
+/* Dev-only "instant" validation off for this page (polish-deploy design §8, decision (a), REQ-PD-47).
+   The recipient model lives in the URL (`m`), so the picks depend on request data by design. The build is unaffected; the route still prerenders its shell and streams the body. */
+export const instant = false;
 
 /* /picks — the picks for the confirmed model (PRD §1 step 4).
    The only match() call in the app. Missing/invalid `m` redirects (REQ-CV-20);
@@ -29,17 +38,14 @@ export default async function PicksPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between px-6 py-5 sm:px-10">
-        <Link href="/" className="font-display text-2xl font-semibold tracking-wide">
-          Tiny Tiaraa
-        </Link>
-        <Link href="/atelier" className="text-sm hover:underline">
-          Browse the atelier
-        </Link>
-      </header>
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-6 py-8 sm:px-10">
+      <SiteHeader links={[{ href: "/atelier", label: "Browse the atelier" }]} />
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-6 py-8 outline-none sm:px-10"
+      >
         <div>
-          <h1 className="font-display text-3xl font-semibold">Your picks</h1>
+          <h1 className="font-display text-3xl font-semibold leading-tight sm:text-4xl">Your picks</h1>
           <p className="mt-2 text-plum/80">{headline}</p>
         </div>
         <DisclosureNote sentences={result.disclosures} />
@@ -59,7 +65,10 @@ export default async function PicksPage({
           </div>
         )}
         <p>
-          <Link href={modelHref("/find", model)} className="underline">
+          <Link
+            href={modelHref("/find", model)}
+            className="inline-flex min-h-11 items-center underline"
+          >
             Change my answers
           </Link>
         </p>

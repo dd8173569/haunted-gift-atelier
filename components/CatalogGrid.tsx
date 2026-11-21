@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   AGE_OPTIONS,
   ALL_FILTERS,
@@ -12,6 +12,7 @@ import {
   type BrowseFilters,
   type BrowseItem,
 } from "../lib/browse";
+import ActionButton from "./ActionButton";
 import BrowseCard from "./BrowseCard";
 import ChipGroup from "./ChipGroup";
 import PriceFootnote from "./PriceFootnote";
@@ -30,11 +31,20 @@ export default function CatalogGrid({ items, initialFilters }: Props) {
     window.history.replaceState(null, "", q ? `?${q}` : window.location.pathname);
   };
 
+  const filtersRef = useRef<HTMLDivElement>(null);
+
+  // "Clear filters" unmounts when the grid refills, so focus moves to the first chip (REQ-PD-23).
+  // The chip is always mounted, so focusing it in the handler works.
+  const clearFilters = () => {
+    apply({ ...ALL_FILTERS });
+    filtersRef.current?.querySelector<HTMLElement>("button")?.focus();
+  };
+
   const visible = filterItems(items, filters);
 
   return (
     <div data-price-region className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4">
+      <div ref={filtersRef} className="flex flex-col gap-4">
         <ChipGroup
           label="Age"
           options={AGE_OPTIONS}
@@ -60,21 +70,19 @@ export default function CatalogGrid({ items, initialFilters }: Props) {
           onToggle={(v) => apply({ ...filters, budget: v as BrowseFilters["budget"] })}
         />
       </div>
-      <p aria-live="polite" className="text-sm text-plum/80">
-        Showing {visible.length} {visible.length === 1 ? "piece" : "pieces"}
-      </p>
+      <div aria-live="polite" className="flex flex-col gap-2">
+        <p className="text-sm text-plum/80">
+          Showing {visible.length} {visible.length === 1 ? "piece" : "pieces"}
+        </p>
+        {visible.length === 0 && <p>No piece matches those filters.</p>}
+      </div>
       <div className="flex flex-col gap-4">
         <PriceFootnote />
         {visible.length === 0 ? (
           <div className="flex flex-col items-center gap-4 py-8 text-center">
-            <p>No piece matches those filters.</p>
-            <button
-              type="button"
-              onClick={() => apply({ ...ALL_FILTERS })}
-              className="min-h-11 rounded-full border border-plum/30 px-6 py-2 text-base text-plum hover:bg-blush"
-            >
+            <ActionButton variant="secondary" onClick={clearFilters}>
               Clear filters
-            </button>
+            </ActionButton>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

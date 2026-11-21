@@ -13,6 +13,14 @@
 
   --font-display: var(--font-cormorant), Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Non-colour tokens (polish-deploy design §4.1). Shadow colour derives from the plum token. */
+  --tracking-eyebrow: 0.2em; /* one value for every uppercase eyebrow: tracking-eyebrow */
+  --shadow-card:
+    0 1px 2px color-mix(in srgb, var(--color-plum) 8%, transparent),
+    0 10px 28px -14px color-mix(in srgb, var(--color-plum) 22%, transparent); /* shadow-card */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
 }
 
 @layer base {
@@ -43,6 +51,32 @@
 
 .mote {
   animation: mote-drift 9s ease-in-out infinite;
+}
+
+/* Focus indicator (REQ-PD-19). An outline, not a box-shadow, so it survives forced-colors mode.
+   Plum on every surface measures 10.27:1 or better (tests/a11y.contrast.test.ts). */
+@layer base {
+  :focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-plum);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+/* Reduced motion for everything (REQ-PD-27): every animation, transition and smooth scroll,
+   present or future. The wrap-specific rule at the end of this file stays; this rule covers the
+   rest. Motes are hidden because with animation: none they would freeze as visible dots. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  .mote {
+    display: none;
+  }
 }
 
 /* Gift wrap reveal (gift-presentation design §5.3). Transform and opacity only, no colour.

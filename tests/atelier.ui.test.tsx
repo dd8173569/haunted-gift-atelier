@@ -56,7 +56,8 @@ describe("/atelier grid, no filter", () => {
     expect(card.querySelector("button")).toBeNull();
     expect(card.textContent).not.toContain(BUY);
     expect(card.className).toContain("bg-plum/5");
-    expect(card.className).toContain("text-plum/50");
+    // REQ-PD-49: text-plum/50 measured 2.77:1; the out-of-stock text is text-plum/75 (AA, design §7.5).
+    expect(card.className).toContain("text-plum/75");
     const img = card.querySelector("img")!;
     expect(img.getAttribute("style")).toBeNull();
     expect(img.className).not.toMatch(/opacity|filter|grayscale/);

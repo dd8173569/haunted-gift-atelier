@@ -10,6 +10,7 @@ import {
   CARD_PX_MIN,
   cardOrientation,
 } from "../lib/true-size";
+import ActionButton from "./ActionButton";
 
 interface CalibrationSliderProps {
   onConfirm(longEdgePx: number): void;
@@ -28,6 +29,12 @@ export default function CalibrationSlider({ onConfirm, onCancel }: CalibrationSl
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
+  }, []);
+
+  // "Calibrate with a card" unmounts when this panel opens, so focus moves to the slider as it
+  // mounts (REQ-PD-23). A ref callback, because effect hooks are banned in this file.
+  const focusOnMount = useCallback((el: HTMLInputElement | null) => {
+    el?.focus();
   }, []);
 
   const shortEdgePx = (longEdgePx * CARD_MM.short) / CARD_MM.long;
@@ -51,6 +58,7 @@ export default function CalibrationSlider({ onConfirm, onCancel }: CalibrationSl
         />
       </div>
       <input
+        ref={focusOnMount}
         type="range"
         min={CARD_PX_MIN}
         max={CARD_PX_MAX}
@@ -58,24 +66,15 @@ export default function CalibrationSlider({ onConfirm, onCancel }: CalibrationSl
         value={longEdgePx}
         aria-label="Card outline width"
         aria-describedby="cal-help"
-        className="w-full accent-plum"
+        aria-valuetext={`Outline ${longEdgePx} pixels wide`}
+        className="h-11 w-full accent-plum"
         onChange={(e) => setLongEdgePx(Number(e.target.value))}
       />
       <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={() => onConfirm(longEdgePx)}
-          className="h-11 rounded-full bg-plum px-6 text-sm font-medium text-pearl transition-colors hover:bg-plum/85"
-        >
-          This matches
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="h-11 rounded-full border border-plum/30 px-6 text-sm font-medium text-plum transition-colors hover:bg-champagne"
-        >
+        <ActionButton onClick={() => onConfirm(longEdgePx)}>This matches</ActionButton>
+        <ActionButton variant="secondary" onClick={onCancel}>
           Cancel
-        </button>
+        </ActionButton>
       </div>
     </div>
   );

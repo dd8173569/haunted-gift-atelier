@@ -10,11 +10,10 @@ export default function ProgressMoon({ current }: ProgressMoonProps) {
         viewBox="0 0 44 44"
         fill="none"
         aria-hidden="true"
-        className="text-gold"
       >
         <path
           d="M28.5 4.5A17 17 0 1 0 39.5 30.5 13.5 13.5 0 0 1 28.5 4.5Z"
-          fill="currentColor"
+          className="fill-gold"
         />
       </svg>
       <div aria-hidden="true" className="flex gap-2">
@@ -25,7 +24,7 @@ export default function ProgressMoon({ current }: ProgressMoonProps) {
           />
         ))}
       </div>
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-plum/70">
+      <p className="text-xs font-semibold uppercase tracking-eyebrow text-plum/80">
         Question {current} of 6
       </p>
     </div>

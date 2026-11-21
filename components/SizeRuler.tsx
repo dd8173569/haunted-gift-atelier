@@ -5,6 +5,7 @@
 import { useCallback, useState, type ReactNode } from "react";
 import type { SizeItem } from "../lib/size-spec";
 import { CARD_MM, fitRulerMm, formatMm, mmToPx, rulerTicks } from "../lib/true-size";
+import ActionButton from "./ActionButton";
 
 interface SizeRulerProps {
   factor: number;
@@ -174,13 +175,9 @@ export default function SizeRuler({ factor, calibrated, items }: SizeRulerProps)
             </g>
           </svg>
         </div>
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="h-11 w-fit rounded-full border border-plum/30 px-6 text-sm font-medium text-plum transition-colors hover:bg-champagne"
-        >
+        <ActionButton variant="secondary" className="w-fit" onClick={() => window.print()}>
           Print a 1:1 paper ruler
-        </button>
+        </ActionButton>
       </div>
       <PrintSheet items={items} />
     </div>

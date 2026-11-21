@@ -39,7 +39,7 @@ export default function ChipGroup({
             className={`min-h-11 min-w-11 rounded-full border px-5 py-2 text-base transition-colors ${
               pressed
                 ? "border-plum bg-plum text-pearl"
-                : "border-plum/30 text-plum hover:bg-blush"
+                : "border-plum/60 text-plum hover:bg-blush"
             }`}
           >
             {o.label}
