@@ -1,0 +1,17 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "catalog-validation",
+      "description": "On save of data/catalog.json, run scripts/validate-catalog.ts via npm. Failures print to stderr with a CATALOG VALIDATION FAILED line and a non-zero exit so the agent and user see them (REQ-CD-24). A silent pass on an invalid catalog is a defect.",
+      "trigger": "PostFileSave",
+      "matcher": "(^|/)data/catalog\\.json$",
+      "action": {
+        "type": "command",
+        "command": "npm run validate-catalog 1>&2 || { echo 'CATALOG VALIDATION FAILED: data/catalog.json is invalid. Fix it before continuing; do not ignore this.' >&2; exit 1; }"
+      },
+      "timeout": 60,
+      "enabled": true
+    }
+  ]
+}

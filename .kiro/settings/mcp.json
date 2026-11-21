@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "catalog": {
+      "command": "npx",
+      "args": [
+        "tsx",
+        "packages/mcp-catalog/src/index.ts"
+      ],
+      "cwd": "/home/hatch/workspace/goals/kiroween-2026-hackathon-submission/haunted-gift-atelier",
+      "env": {},
+      "autoApprove": [
+        "catalog_search",
+        "catalog_get",
+        "catalog_validate",
+        "matching_explain"
+      ],
+      "_comment": "Runs from TypeScript source via tsx so matching_explain executes the real lib/matching.ts; no build step."
+    }
+  }
+}
