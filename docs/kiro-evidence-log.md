@@ -74,6 +74,34 @@ in later milestones).
   `package-lock.json`, renamed to `haunted-gift-atelier`, with test /
   typecheck / validate-catalog scripts added. Recorded here so no one
   mistakes scaffold boilerplate for Kiro-authored code.
+- Design tokens (`app/globals.css`, Tailwind v4 `@theme`: pearl/blush/
+  champagne/sage/gold/plum), landing shell (`app/page.tsx`, `app/layout.tsx`
+  with Cormorant Garamond + Inter via `next/font`), component shell
+  (`PriceFootnote`, `ProductPhoto`, `AtelierButton`), `/find` + `/atelier`
+  route shells (honest "opens in Milestone 2/3" notes so no landing link
+  404s), Vitest config, and GitHub Actions CI (lint + typecheck + test +
+  catalog validation) — all DIRECT, not Kiro. Small deterministic files taken
+  straight from architecture §7; Kiro sessions are reserved for the spec and
+  implementation work where the write-up scores on genuine usage.
+- Dev server verified 21 Nov: `npm run dev` serves `/` (HTTP 200, contains
+  "Haunted Gift Atelier", "Tiny Tiaraa", "Find a gift"), `/find` (HTTP 200),
+  `/atelier` (HTTP 200). `tsc --noEmit` and `eslint` both pass. One fix
+  during verification: the scaffold's `LayoutProps<"/">` type needs Next.js
+  generated types (`.next/types`), which don't exist before a first build —
+  the root layout now uses plain `{ children: ReactNode }` so `tsc` passes
+  on a clean checkout.
+- Checkpoint commit `2035e64` (46 files) — scaffold + catalog + tokens +
+  landing + the one Kiro-written spec file. Not pushed yet: the GitHub repo
+  is created and pushed once Milestone 1 is complete (specs + matching core
+  + tests green).
+
+### 2026-11-21 — Session 1b: specs re-run (Kiro) — PENDING LOGIN
+- Prompt ready at `/tmp/kiro-prompts/session1b-specs-rerun.txt`: verify the
+  existing `catalog-data/requirements.md`, then write the remaining 18 files
+  (catalog-data design + tasks, matching-core requirements/design/tasks,
+  4 steering files, 2 hooks, 3 agents, MCP settings).
+- BLOCKED on the parent agent confirming the new Google login (`whoami`).
+  No `kiro-cli` command will run before that confirmation.
 
 ## Counts (running totals)
 
