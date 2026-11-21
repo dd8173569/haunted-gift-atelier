@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/* Design tokens — Haunted Gift Atelier (architecture §7).
+   Pastel light palette, premium professional. These tokens are the ONLY
+   colours in the app: no ad-hoc hex values in components. */
+@theme {
+  --color-pearl: #faf7f2;
+  --color-blush: #f7e8e4;
+  --color-champagne: #f5edd8;
+  --color-sage: #dce8dd;
+  --color-gold: #c9a227;
+  --color-plum: #3d2c3a;
+
+  --font-display: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-pearl);
+    color: var(--color-plum);
+    font-family: var(--font-sans);
+  }
+}
+
+/* Floating motes — subtle haunted accent for the landing hero only. */
+@keyframes mote-drift {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.55;
+  }
+  85% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(-48px) translateX(12px);
+    opacity: 0;
+  }
+}
+
+.mote {
+  animation: mote-drift 9s ease-in-out infinite;
+}
