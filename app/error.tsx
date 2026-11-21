@@ -2,8 +2,6 @@
 
 import { useEffect } from "react";
 import ActionButton from "../components/ActionButton";
-import AtelierButton from "../components/AtelierButton";
-import SiteHeader from "../components/SiteHeader";
 
 /* Segment boundary for every route under the root layout (REQ-REL-01 to 04).
    Fixed copy only: it imports no catalog, matching, or model module (REQ-REL-02), and it never
@@ -24,7 +22,19 @@ export default function RouteError({ error, retry }: { error: unknown; retry: ()
 
   return (
     <div className="flex flex-1 flex-col">
-      <SiteHeader links={[{ href: "/atelier", label: "Browse the atelier" }]} />
+      {/* Minimal inline header: SiteHeader and next/link would add client JavaScript to every route (REQ-REL-45). */}
+      <header className="flex items-center justify-between px-6 py-3 sm:px-10 print:hidden">
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- deliberate plain anchor: keeps next/link out of the fallback's client JavaScript */}
+        <a href="/" className="inline-flex min-h-11 items-center font-display text-2xl font-semibold tracking-wide">
+          Tiny Tiaraa
+        </a>
+        <nav aria-label="Primary" className="flex items-center gap-2 text-sm">
+          {/* Plain anchor on purpose (the lint rule only knows "/"): keeps next/link out of the fallback's client JavaScript. */}
+          <a href="/atelier" className="inline-flex min-h-11 items-center px-3 hover:underline">
+            Browse the atelier
+          </a>
+        </nav>
+      </header>
       <main
         id="main-content"
         tabIndex={-1}
@@ -39,12 +49,14 @@ export default function RouteError({ error, retry }: { error: unknown; retry: ()
           <ActionButton variant="primary" size="lg" onClick={() => retry()}>
             Try again
           </ActionButton>
-          <AtelierButton href="/find" variant="secondary">
+          {/* Plain anchor on purpose (the lint rule only knows "/"): keeps next/link out of the fallback's client JavaScript. */}
+          <a href="/find" className="flex h-12 items-center justify-center rounded-full px-8 text-base font-medium transition-colors border border-plum/60 text-plum hover:bg-blush">
             Find a gift
-          </AtelierButton>
-          <AtelierButton href="/atelier" variant="secondary">
+          </a>
+          {/* Plain anchor on purpose (the lint rule only knows "/"): keeps next/link out of the fallback's client JavaScript. */}
+          <a href="/atelier" className="flex h-12 items-center justify-center rounded-full px-8 text-base font-medium transition-colors border border-plum/60 text-plum hover:bg-blush">
             Browse the atelier
-          </AtelierButton>
+          </a>
         </div>
       </main>
     </div>

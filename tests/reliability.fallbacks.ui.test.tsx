@@ -50,7 +50,7 @@ function expectCommon(container: Element, retryLabel?: string) {
     expect(["A", "BUTTON"], `${el.outerHTML} is native`).toContain(el.tagName);
     expect(targetSize(el).heightOk, `${el.textContent} has a 44 px height class`).toBe(true);
   }
-  // Header links are text links sized by SiteHeader (height class only); every control in main has the full 44 px target.
+  // Header links are inline text links in the fallback's own header (height class only); every control in main has the full 44 px target.
   for (const el of interactive(container.querySelector("main")!)) {
     expect(targetSize(el).ok, `${el.textContent} has a 44 px target`).toBe(true);
   }
