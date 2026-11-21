@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -27,7 +27,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${display.variable} ${sans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-pearl text-plum font-sans">
-        {children}
+        {/* searchParams on /find, /picks and /atelier is runtime data; Cache Components needs a
+            Suspense boundary above it or the prerender of the route fails. */}
+        <Suspense fallback={null}>{children}</Suspense>
       </body>
     </html>
   );

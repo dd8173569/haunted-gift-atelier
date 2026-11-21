@@ -6,12 +6,15 @@ type AtelierButtonProps = {
   href: string;
   variant?: "primary" | "secondary";
   children: ReactNode;
+  /** Opens `href` in a new tab; `href` is passed through untouched. */
+  external?: boolean;
 };
 
 export default function AtelierButton({
   href,
   variant = "primary",
   children,
+  external = false,
 }: AtelierButtonProps) {
   const base =
     "flex h-12 items-center justify-center rounded-full px-8 text-base font-medium transition-colors";
@@ -20,7 +23,11 @@ export default function AtelierButton({
       ? "bg-plum text-pearl hover:bg-plum/85"
       : "border border-plum/30 text-plum hover:bg-blush";
   return (
-    <Link href={href} className={`${base} ${styles}`}>
+    <Link
+      href={href}
+      className={`${base} ${styles}`}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+    >
       {children}
     </Link>
   );

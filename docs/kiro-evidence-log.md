@@ -452,15 +452,265 @@ reset (as of the 12:22 snapshot; later sessions draw further).
   the GitHub web UI (web-UI file creation does not use the
   OAuth token, so no scope is needed).
 
+## Milestone 2 (21–24 Nov 2026)
+
+### 2026-11-21 — M2 start: corrected base state (parent agent)
+- Remote HEAD is cb633bb (the M1 agent pushed log corrections after the
+  M2 brief was written — NOT 38cf2d9). Local main was 1 commit ahead:
+  4a200e7, "Restore .github/workflows/ci.yml", which is UNPUSHABLE (the
+  `gh` token lacks workflow scope; the push is rejected). The ci.yml
+  content was saved aside to `/tmp/ci.yml.bak` (443 bytes) BEFORE any
+  reset, and 4a200e7 will NOT be pushed. The repo will be reset to
+  origin/main (cb633bb) once the running session 4 finishes writing its
+  (untracked) spec files, so the reset cannot disturb it. CI is
+  unfinished and NOT a submission requirement — the file can be added
+  later via the GitHub web UI or after a token refresh; no M2 time is
+  spent on it.
+- Four persona spec questions are OPEN (pinned as current behaviour in
+  tests/matching.personas.test.ts; the code follows the rules as written
+  — the questions are about the rules, and need the builder's call at
+  the Tue 24 Nov go/no-go checkpoint): (a) PRD says gold pendants
+  "Om/Sikh/Trishul" in ₹15–25k but Trishul (TPN-1143, ₹14,399) is
+  below the band; (b) should symbols=any avoid religious pieces unless
+  requested (persona 3's third pick is the Third Eye tabeez TBZ-1013);
+  (c) PRD says only "sets" for persona 6 but only 2 sets exist, so a
+  bangle fills the third slot with disclosure; (d) persona 8's
+  no-signal picks (all score 1, incl. the ₹26,649 THP-1001 hoop) look
+  thin. M2 does NOT change matching behaviour to answer these.
+- Known M1 gaps carried into M2 (not chased unless trivial): hooks'
+  save-triggered firing is still unverified (needs a real IDE check);
+  agent-file front matter was written from convention, not docs; no
+  Kiro MCP client session has called the catalog server yet.
+
+### 2026-11-21 — Session 4: conversation spec (Kiro) — COMPLETED
+- Prompt at `/tmp/kiro-prompts/session4-conversation-spec.txt`: write
+  `.kiro/specs/conversation/` (requirements/design/tasks) from PRD §1/§3/§4
+  + architecture §7/§8 + the matching-core and catalog-data specs.
+  Exit 0 in ~8 min. Files: requirements.md (231 lines, REQ-CV-01–60,
+  last nine are property invariants C1–C9), design.md (469), tasks.md
+  (102, five waves). No application code, no tests run (specs only).
+- Model transport DECIDED in the spec: the confirmed model travels in
+  one URL query parameter, `m`, as canonical-order JSON, percent-encoded
+  by `URLSearchParams`; never localStorage/cookie/session. Missing `m`
+  on /picks → redirect /find; invalid `m` → /find?notice=incomplete.
+  `match()` runs only in the /picks server component, after validation.
+- Spec questions Q1–Q10 with working assumptions in design §13 (Q1:
+  Q5 top-level chips single-select, only religious sub-chips
+  multi-select; Q2: "No religious symbols" as a top-level chip; Q3: an
+  "An adult" age chip added — the PRD chips stop at 12–19, so no tap
+  path to the adult message existed; Q4–Q5: `ageYears` set to the
+  chip's lower bound (0, 1, 3, 6, 12) so the chip can be restored, never
+  shown as a real age; Q6: new `lib/catalog-store.ts` four-line loader
+  proposed — APPROVED by the M2 coordinator (see below), steering
+  updated in Wave 5; Q7: pick cards link only to the buy URL — no
+  /piece/[sku] in M2; Q8: "greyed" OOS = muted surface + text, no
+  filter/opacity on the photo; Q9: age prompt written as "How old is
+  the little one?"; Q10: "Resume at the card" / "Change my answers"
+  via /find?m=… added by the spec author).
+- Q6 approval (coordinator, recorded here): `lib/catalog-store.ts` is
+  a four-line loader with no logic, imported by server pages only — a
+  file-organisation decision, not a product/behaviour one. Steering
+  `structure.md` updated in Wave 5 to list all five new lib files.
+
+### 2026-11-21 — Session 5a: conversation Wave 1, pure logic (Kiro) — COMPLETED
+- Prompt at `/tmp/kiro-prompts/session5a-conversation-wave1.txt`:
+  implement tasks.md Wave 1 (T1.1–T1.4 + tests). Exit 0 in ~9.5 min.
+  Files: lib/conversation.ts (701 lines), lib/model-param.ts (37),
+  lib/picks-view.ts (54), lib/browse.ts (121); tests conversation.test
+  (566), model-param (76), picks-view (100), browse (143),
+  conversation.property (601), conversation.static (83), plus helper
+  tests/helpers/conversation-taps.ts (61, golden 1–3 tap sequences).
+  166 new tests; 391 total, all passing (verified independently by the
+  coordinator afterwards). `npm run typecheck` and `npm run lint`
+  clean (only the pre-existing mcp-catalog warning). Coverage:
+  browse/model-param/picks-view 100% lines, conversation.ts 99.54%.
+  No `coverage/` directory left behind.
+- Property-test counterexample (counted below — the session's real
+  find): answers `{adultIsMom: true}` combined with a child age and a
+  category. `normalize()` judged which questions apply from the raw
+  answers, so a leftover `adultIsMom: true` made the recipient look
+  like Mom and the piece answer was wrongly dropped. The real flow
+  hits this when an adult-and-Mom path is edited to a child age. Fix
+  (Kiro, in the implementation): `normalize` first clears the answers
+  other questions depend on (`age`, then `adultIsMom`), then evaluates
+  the rest. Regression test in conversation.test.ts.
+- Deviations / spec refinements (Kiro's list, accepted — all in the
+  implementation or tests, none in matching behaviour): (1) Back
+  during an edit returns to the card only when the answers are
+  complete, else steps back normally and ends edit mode (design §2.4
+  said Back goes to the card, which breaks "card implies a model");
+  (2) P-CV-3 `adult-end ⇔ ended` does not hold (Back from `adult-end`
+  keeps the "No" answer while the step is `adult-check`) — the weaker
+  forms `adult-end ⇒ ended` and `ended ⇒ step ∈ {relationship, age,
+  adult-check, adult-end}` are tested instead; (3) P-CV-8 round trip
+  cannot hold for every valid model — `ageYears: 0.5` comes back as 0
+  (chip lower bound, Q4), `occasion: "other"` has no chip,
+  a Mom model with `category` other than `any` comes back as `any` —
+  exact round trips are tested for models the flow can produce, and
+  the lower-bound rule for the rest; `validateModel` accepts
+  `occasion: "other"` and a resumed model with it starts at the
+  occasion question; (4) in the property generator, Edit actions are
+  legal only on the card; (5) `momSkipNote` pluralises by adding "s"
+  unless the category already ends in "s" — "Earrings" is correct
+  today; a hypothetical Mom-only Tabeez catalog would read "tabeezs",
+  unreachable now; (6) adult-and-No from the card wipes the later
+  answers, following design §2.3 as written (spec change needed if the
+  builder wants those answers kept).
+
+### 2026-11-21 — Session 5b: conversation Wave 2, /find (Kiro) — COMPLETED
+- Prompt at `/tmp/kiro-prompts/session5b-conversation-wave2.txt`:
+  implement tasks.md Wave 2 (T2.0–T2.4 + flow test + dev-server
+  check). Exit 0 in ~4 min. Files: components/ChipGroup.tsx (51),
+  ProgressMoon.tsx (33), RecipientCard.tsx (53), Conversation.tsx
+  (226); app/find/page.tsx (37, M1 shell replaced);
+  lib/catalog-store.ts (4); tests/helpers/dom.ts (6),
+  tests/dom-env.test.tsx (9, kept as the setup guard),
+  tests/conversation.flow.test.tsx (232). package.json +
+  package-lock.json changed only to add @testing-library/react
+  16.3.3, @testing-library/jest-dom 8.0.0, jsdom 31.0.1 (the
+  @testing-library/dom peer came in automatically, not added to
+  package.json). 17 new tests (16 flow + 1 DOM proof); 408 total, all
+  passing (verified independently by the coordinator afterwards).
+  typecheck + lint clean. The `// @vitest-environment jsdom` docblock
+  works under Vitest 5.1.1 — the `test.projects` fallback was NOT
+  needed and vitest.config.ts is untouched. Dev-server check (port
+  3111, killed afterwards, /tmp/dev.log removed): /find 200, the
+  prompt appears once, "start again" once on
+  /find?notice=incomplete, "Reveal my picks" once on
+  /find?m=<golden 1>.
+- Assumptions (Kiro's, accepted): the "five verbatim prompts" test
+  covers relationship, occasion, budget, metal and symbols (design
+  §2.2 strings — the PRD itself is not in the repo); when editing
+  "Who" from the card, Back renders as a button ("cancel edit"),
+  not a link to `/` (design §4 only specifies question 1's Back
+  linking to `/`).
+
+### 2026-11-21 — Session 5c: conversation Wave 3, /picks (Kiro) — COMPLETED
+- Prompt at `/tmp/kiro-prompts/session5c-conversation-wave3.txt`:
+  implement tasks.md Wave 3 (T3.1–T3.3 + picks UI test +
+  dev-server check). Exit 0 in ~3 min. Files:
+  components/AtelierButton.tsx (34, `external` prop added),
+  PickCard.tsx (45), DisclosureNote.tsx (19), app/picks/page.tsx
+  (69), tests/picks.ui.test.tsx (249). 16 new tests; 424 total, all
+  passing (verified independently by the coordinator afterwards).
+  typecheck + lint clean. Dev-server check: golden 1 shows TBZ-1013
+  with its verbatim name and ₹2,324; footnote text 3×; "Buy on Tiny
+  Tiaraa" 3× (grep counted 6/3 because the page's inline data
+  payload duplicates the visible text on one line — counted by hand);
+  /picks returns 307 → /find; /picks?m=%7Bnope returns 307 →
+  /find?notice=incomplete (NOTE: this 307 behaviour changed in Wave
+  5 — see OQ-1 below). Golden-1 names/prices/buy URLs checked by
+  hand against data/catalog.json.
+- Notes (Kiro's, accepted): (1) RELIGIOUS PIECES IN GOLDEN 1 — the
+  golden-1 picks include two religious-symbol pieces (TBZ-1013 Third
+  Eye/Shiva, TBZ-1017 Swastik) although the user chose "no symbol
+  preference", while steering product.md says never to show a
+  religious-symbol piece unless the user opted in. NO change was
+  made: the golden case is pinned and matching questions stay open.
+  This is the same question as M1 open question (b)
+  (symbols='any' counts as explicit opt-in under REQ-MC-11) and
+  belongs with it at the Tue 24 Nov checkpoint. (2) Card eyebrow:
+  design §5 draws "1 of 3 · Pendant", but the card takes only `view`
+  — with 2 picks "1 of 3" would be wrong, so the card reads "Pick 1 ·
+  Tabeez". Rating line reads "Rated {rating}" with the catalog
+  string unchanged, e.g. "Rated 5.0/5".
+
+### 2026-11-21 — Session 5d: conversation Wave 4, /atelier (Kiro) — COMPLETED
+- Prompt at `/tmp/kiro-prompts/session5d-conversation-wave4.txt`:
+  implement tasks.md Wave 4 (T4.1–T4.3 + atelier UI test +
+  dev-server check). Exit 0 in ~4.5 min. Files:
+  components/BrowseCard.tsx (44), CatalogGrid.tsx (89),
+  app/atelier/page.tsx (37, M1 shell replaced),
+  tests/atelier.ui.test.tsx (224). 12 new tests; 436 total, all
+  passing (verified independently by the coordinator afterwards).
+  typecheck + lint clean. Dev-server check: /atelier shows 21 "Buy
+  on Tiny Tiaraa" and 1 "Out of stock"; ?metal=silver&category=
+  bracelet shows 2 TNZ cards (TNZ-1056, TNZ-1058 — TOB-1008 is the
+  third silver bracelet but not a TNZ SKU); ?metal=junk shows 21 buy
+  links (invalid → All). `BrowseCard` carries a `data-sku`
+  attribute for tests; stock status comes from `availability`,
+  never from a SKU.
+- Notes (Kiro's, accepted): (1) PRICE REGION — the budget chips
+  show ₹ ranges, so P-CV-10 fails if `data-price-region` wraps only
+  the cards; the single `data-price-region` is on the whole grid,
+  filters included, with the one `PriceFootnote` directly above the
+  cards. Alternative (exempt filter-chip text from P-CV-10) was
+  offered — the implemented approach stands unless the builder
+  prefers the exemption. (2) PRICE BAND EDGES — `price_band` runs
+  from just above ₹15,000 up to ₹25,000 inclusive, with 15,000
+  itself in the lower band (per the pinned catalog-data spec); the
+  Pendant + gold + ₹15,000–₹25,000 test case computes TPN-1149 and
+  TPN-1147 from raw catalog fields with that edge.
+
+### 2026-11-21 — Session 6: conversation Wave 5, integration + QA (Kiro) — COMPLETED
+- Prompt at `/tmp/kiro-prompts/session6-conversation-wave5.txt`:
+  implement tasks.md Wave 5 (T5.1–T5.5). Exit 0 in ~7 min. Files:
+  tests/journey.golden.test.tsx (256, 19 tests — golden cases 1–3
+  tapped through `Conversation`, `href` decoded, `parseModelParam`
+  → `match()` → `toPickViews`, /picks rendered, SKU order/scores/
+  disclosures/shortfall/TPN-1141 sentence asserted; the 8 personas
+  + flow cases 9–11 tapped the same way with values copied from
+  tests/matching.personas.test.ts; persona 3 asserts TNZ-1058
+  absent; personas 7 and 8 assert no religious SKU; tap-count tests
+  give 8 taps for golden 1 and 10 for golden 3),
+  docs/qa-reports/conversation-m2.md (74, the qa-auditor report),
+  .kiro/steering/structure.md (now lists all five new lib files).
+  ONE code change outside the tests: app/layout.tsx wraps
+  `{children}` in `<Suspense fallback={null}>` — the first `npm run
+  build` failed because /atelier reads `searchParams` outside a
+  Suspense boundary, which `cacheComponents` rejects; the layout fix
+  resolves it. 455 tests total (22 files), all passing (verified
+  independently by the coordinator afterwards, together with the
+  dev-server happy path: / 200, /find 200, /picks golden-1 shows
+  TBZ-1013 + 3 buy links + 3 footnotes, /atelier 21 buy links +
+  1 "Out of stock"). `npm run typecheck`, `npm run lint` (only the
+  known mcp-catalog warning), `npm run validate-catalog` (2
+  expected warnings), and `npm run build` all pass. Coverage:
+  browse/model-param/picks-view 100% lines, conversation.ts
+  99.54%. No `coverage/` directory, no dev server, no temp log
+  left behind.
+- MCP — FIRST LIVE CLIENT CALLS (counted below): three real
+  `matching_explain` calls to the catalog MCP server, one per golden
+  model. All three matched REQ-MC-33 to 35 exactly (picks, scores,
+  disclosures, shortfall note, TPN-1141 sentence). The M1 gap "no
+  Kiro MCP client session has called the server yet" is now closed
+  for `matching_explain`; `catalog_search`, `catalog_get`, and
+  `catalog_validate` still have 0 live client calls.
+- QA audit: no unambiguous bugs found — footnote on every price, no
+  out-of-stock buy control, no hex in components, no discount
+  wording all check out. Nothing was fixed in the audit step.
+- OPEN QUESTIONS from Wave 5 (for the builder, not fixed): OQ-1 —
+  with `cacheComponents`, /picks with a missing or invalid `m`
+  returns HTTP 200 with a streamed redirect, not the 307 tasks.md
+  expects. VERIFIED by the coordinator: the response is 200 with a
+  `<meta http-equiv="refresh" content="1;url=/find"/>` (1-second
+  client-side redirect) — the redirect still works in a browser,
+  just not as an HTTP 307. Acceptable for M2; if a 307 is wanted,
+  the route needs a different prerendering approach. OQ-2 — the M1
+  landing copy and page metadata say "prove it's safe" and "or if
+  it's safe"; the "never says safe" rule is written for the safety
+  card, so the landing copy was left alone. Needs the builder's
+  call: is the landing wording acceptable, or should it change
+  before M3 writes the safety card?
+- DEFERRED, honestly: the manual timed browser run of golden 1
+  (T5.3) was NOT done — a non-interactive session cannot tap
+  through a browser, and no time was recorded or fabricated. The
+  tap-count test (8 taps) and the jsdom journey tests cover the tap
+  budget and the flow; the timed run moves to the M6 clean-browser
+  pass.
+- Balance watch: NOT re-checked during M2 (no new reading taken);
+  the 12:22 IST snapshot (~284 plan credits + 500 bonus, reset
+  1 Dec) stands.
+
 ## Counts (running totals)
 
 | Metric | Count |
 |---|---|
-| Kiro sessions (non-interactive CLI) | 8 (smoke test + session 1 + 1b + 2a + 2a-fix + 2b + 2b-spec-update + session 3) |
-| Kiro sessions completed successfully | 7 (smoke test, 1b, 2a, 2a-fix, 2b, 2b-spec-update, session 3; session 1 interrupted) |
-| MCP server calls | 0 via a Kiro MCP client (server scaffolded in M1 by session 3 and smoke-tested via piped JSON-RPC — initialize, tools/list, and all four tools verified; first live client calls in M2) |
+| Kiro sessions (non-interactive CLI) | 14 (M1: 8; M2: 6 — session 4 spec, 5a Wave 1, 5b Wave 2, 5c Wave 3, 5d Wave 4, session 6 Wave 5) |
+| Kiro sessions completed successfully | 13 (M1: 7 + session 1 interrupted; M2: 6 of 6) |
+| MCP server calls | 3 via a Kiro MCP client (`matching_explain` × 3, session 6 — first live client calls; all three matched the golden cases exactly). `catalog_search`, `catalog_get`, `catalog_validate` still 0 live client calls (M1 smoke tests used piped JSON-RPC). |
 | Hook firings observed | 0 (hooks defined in M1; CLI firing unverified — T4.2 and T5.1 attempts could not observe firing from the CLI; both hooks' commands were verified to fail visibly by hand) |
-| Property-test counterexamples found | 2 (P-CD-2 [1, 14.97]: float epsilon, implementation unchanged per design §3.3; I3/I4 ladder-disclosure gap: fixed with finalDisclosures(), spec update follows) |
+| Property-test counterexamples found | 3 (M1: 2; M2: 1 — Wave 1 `normalize()` adultIsMom leftover, fixed in the implementation with a regression test) |
 
 ## Notes
 
@@ -488,3 +738,26 @@ reset (as of the 12:22 snapshot; later sessions draw further).
   rather than cutting corners. Quality first. Balance is fine anyway
   (~284 plan credits left + 500 bonus untouched at the 12:22 snapshot,
   reset 1 Dec).
+
+## Milestone 2 — open questions for the Tue 24 Nov go/no-go checkpoint
+
+- M1 (a): PRD says gold pendants "Om/Sikh/Trishul" in ₹15–25k but
+  Trishul (TPN-1143, ₹14,399) is below the band.
+- M1 (b): should symbols=any avoid religious pieces unless requested
+  (persona 3's third pick is the Third Eye tabeez TBZ-1013; golden 1
+  itself returns two religious pieces under "no symbol preference").
+- M1 (c): PRD says only "sets" for persona 6 but only 2 sets exist,
+  so a bangle fills the third slot with disclosure.
+- M1 (d): persona 8's no-signal picks (all score 1, incl. the ₹26,649
+  THP-1001 hoop) look thin.
+- M2 OQ-2: landing copy says "prove it's safe" / "or if it's safe" —
+  is that wording acceptable, or should it change before M3?
+- M2 (Wave 4): price-region alternative — exempt filter-chip text
+  from P-CV-10, or keep `data-price-region` on the whole grid?
+- M2 (Wave 1, item 6): adult-and-No from the card wipes the later
+  answers (per design §2.3 as written) — keep, or change the rule?
+- M2 OQ-1: /picks missing/invalid `m` returns 200 + meta-refresh
+  instead of 307 — acceptable, or rework the route?
+- None of these block M3 (safety verdict + true-size + gift
+  presentation), which starts on the M2 code as-is. The checkpoint
+  decides them — or they ride as documented behaviour.

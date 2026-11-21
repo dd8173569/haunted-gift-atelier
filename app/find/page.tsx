@@ -1,23 +1,37 @@
 import Link from "next/link";
+import Conversation from "../../components/Conversation";
+import { momSkipNote } from "../../lib/conversation";
+import { catalog } from "../../lib/catalog-store";
+import { parseModelParam } from "../../lib/model-param";
 
 /* /find — conversation + recipient card (PRD §1 steps 2–3).
-   Milestone 1 shell: the conversation opens in Milestone 2. */
-export default function FindPage() {
+   Reads `m` (resume on the card) and `notice` (REQ-CV-20, 22). No matching here. */
+export default async function FindPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const sp = await searchParams;
+  const parsed = parseModelParam(sp.m);
+  const notice = sp.notice === "incomplete" || parsed.status === "invalid" ? "incomplete" : undefined;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center px-6 py-16 text-center">
-      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
-        Haunted Gift Atelier
-      </p>
-      <h1 className="mt-4 font-display text-4xl font-semibold">
-        The conversation opens in Milestone 2.
-      </h1>
-      <p className="mt-4 max-w-md text-plum/75">
-        Six questions, all answerable by taps — who the gift is for, the
-        occasion, the budget, gold or silver, symbols, and the kind of piece.
-      </p>
-      <Link href="/" className="mt-8 hover:underline">
-        ← Back to the atelier
-      </Link>
+    <div className="flex flex-1 flex-col">
+      <header className="flex items-center justify-between px-6 py-5 sm:px-10">
+        <Link href="/" className="font-display text-2xl font-semibold tracking-wide">
+          Tiny Tiaraa
+        </Link>
+        <Link href="/atelier" className="text-sm hover:underline">
+          Browse the atelier
+        </Link>
+      </header>
+      <main className="flex flex-1 flex-col items-center px-6 py-10 sm:px-10">
+        <Conversation
+          initialModel={parsed.status === "ok" ? parsed.model : undefined}
+          notice={notice}
+          momNote={momSkipNote(catalog)}
+        />
+      </main>
     </div>
   );
 }

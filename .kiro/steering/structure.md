@@ -11,7 +11,8 @@ haunted-gift-atelier/
 ├── app/                      routes only: page.tsx, find/, picks/, piece/[sku]/, atelier/, about/, api/chat/ (M5, optional)
 ├── components/               React components, PascalCase.tsx (PickCard, SafetyVerdict, TrueSizeViewer, GiftWrap,
 │                             CalibrationSlider, CatalogGrid, PriceFootnote, ProductPhoto, AtelierButton)
-├── lib/                      pure logic, kebab-case.ts: catalog.ts, matching.ts, safety.ts, true-size.ts, conversation.ts
+├── lib/                      pure logic, kebab-case.ts: catalog.ts, matching.ts, safety.ts, true-size.ts, conversation.ts,
+│                             model-param.ts, picks-view.ts, browse.ts, catalog-store.ts (parsed catalog for server pages)
 │   └── matching/             pipeline stages used by matching.ts (age, filters, scoring, rank, relax, explain, templates, types)
 ├── data/                     catalog.json, catalog-changelog.md, product-tags.ts, occasion-map.ts, safety-rules.md
 ├── packages/mcp-catalog/     custom MCP server over the catalog (Node + MCP SDK, stdio)
