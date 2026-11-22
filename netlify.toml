@@ -1,0 +1,8 @@
+# Build settings for the Netlify deploy (live: https://haunted-gift-atelier.netlify.app/).
+# `base` is pinned to the repo root: on the first import Netlify auto-detected
+# packages/mcp-catalog as the base directory (it has a package.json but no
+# build script), which failed the first build. Do not remove this pin.
+[build]
+  base = "."
+  command = "npm run build"
+  publish = ".next"

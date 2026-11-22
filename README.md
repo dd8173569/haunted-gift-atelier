@@ -11,10 +11,20 @@ matching, a per-pick safety verdict, and a true-size viewer.
 
 ## Status
 
-Milestone 1 in progress (22–23 Nov 2026): repo scaffold, Kiro specs
-(`catalog-data`, `matching-core`), design tokens, catalog validation, MCP
-server skeleton. See `docs/kiro-evidence-log.md` for an honest record of what
-Kiro did vs what was done directly.
+Milestones 1–5 are done, plus the REQ-REL-45 size fix (21 Nov 2026): 1585
+tests in 62 files. Milestone 6 deployed the app live on Netlify on 22 Nov 2026.
+See `docs/kiro-evidence-log.md` for an honest record of what Kiro did vs what
+was done directly.
+
+## Live site
+
+- URL: https://haunted-gift-atelier.netlify.app/
+- Platform: Netlify, Starter tier (free), connected to this GitHub repo. A push
+  to `main` auto-deploys to production.
+- Build settings are pinned in `netlify.toml`: base directory = repo root, build
+  command `npm run build`, publish directory `.next`, no environment variables.
+- `npm run build` runs the `prebuild` catalog validation first. The Netlify
+  build log shows `CATALOG OK` (22 products).
 
 ## Run it
 

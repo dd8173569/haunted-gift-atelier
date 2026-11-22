@@ -1237,8 +1237,8 @@ T4.4 skipped on purpose (no human keyboard pass, so no slider step buttons; Q-PD
 
 | Metric | Count |
 |---|---|
-| Kiro sessions (non-interactive CLI) | 31 (M1: 8; M2: 6 — session 4 spec, 5a Wave 1, 5b Wave 2, 5c Wave 3, 5d Wave 4, session 6 Wave 5; M3: 5 — session 7 specs, session 8 safety-verdict, session 9 true-size-viewer, session 10 gift-presentation, session 10b retry Wave 4; M4: 7 — session 11 spec, 12 Wave 0+1, 13a Wave 2 part 1, 13b Wave 2 part 2, 14a Wave 3 part 1, 14b Wave 3 part 2, 15 Wave 4; M5: 4 — session 16 spec, 17 Waves 0+1, 18 Waves 2+3, 19 Waves 4+5; REQ-REL-45 size fix: 1 — session 20) |
-| Kiro sessions completed successfully | 30 (M1: 7 + session 1 interrupted; M2: 6 of 6; M3: 5; M4: 7 of 7; M5: 4 of 4; size fix: 1 of 1) |
+| Kiro sessions (non-interactive CLI) | 32 (M1: 8; M2: 6 — session 4 spec, 5a Wave 1, 5b Wave 2, 5c Wave 3, 5d Wave 4, session 6 Wave 5; M3: 5 — session 7 specs, session 8 safety-verdict, session 9 true-size-viewer, session 10 gift-presentation, session 10b retry Wave 4; M4: 7 — session 11 spec, 12 Wave 0+1, 13a Wave 2 part 1, 13b Wave 2 part 2, 14a Wave 3 part 1, 14b Wave 3 part 2, 15 Wave 4; M5: 4 — session 16 spec, 17 Waves 0+1, 18 Waves 2+3, 19 Waves 4+5; REQ-REL-45 size fix: 1 — session 20; M6: 1 — session 21) |
+| Kiro sessions completed successfully | 31 (M1: 7 + session 1 interrupted; M2: 6 of 6; M3: 5; M4: 7 of 7; M5: 4 of 4; size fix: 1 of 1; M6: 1 of 1) |
 | MCP server calls | 28 via a Kiro MCP client (`matching_explain` × 5 — 3 in session 6, 1 in 10b, 1 in session 15, all matching the golden cases; `catalog_get` × 23 — 1 in 10b for TNZ-1058, 22 in session 15 for the T4.5 audit alt check). `catalog_search`, `catalog_validate` still 0 live client calls (M1 smoke tests used piped JSON-RPC). |
 | Hook firings observed | 0 (hooks defined in M1; CLI firing unverified — T4.2 and T5.1 attempts could not observe firing from the CLI; both hooks' commands were verified to fail visibly by hand) |
 | Property-test counterexamples found | 3 (M1: 2; M2: 1 — Wave 1 `normalize()` adultIsMom leftover, fixed in the implementation with a regression test; M3: 0 property counterexamples — session 9 fixed 2 boundary bugs found in unit tests, not property tests; M4: 0 product counterexamples — the P-PD-4 "name exactly once" failure was a test-generator fix, and the T3.3 SizeOutlines border was found by the contrast scan, not a property test; M5: 0 product counterexamples — the one Wave 3 finding, C-R2-1, was a test-oracle correction; the code was as designed) |
@@ -1312,6 +1312,43 @@ The M5 close-out had accepted the REQ-REL-45 breach as a known gap for the Tue 2
 - Counts table updated: 31 sessions, 30 completed. The M5 open-questions REQ-REL-45 item below is marked FIXED.
 - Size fix committed and pushed to origin/main (see HEAD below).
 
+## Milestone 6 (22 Nov 2026)
+
+M6 started 22 Nov, ahead of schedule (planned 2 Dec), on the size-fix code as-is (HEAD `1e2e0ff`, 1585 tests in 62 files). Scope is deploy and judge-proofing: the docs and config pin are session 21 (Kiro) below; the clean-browser pass runs as a separate browser task; the T4.3 physical calibration check still needs a human with a card and ruler.
+
+### 2026-11-22 — Deploy (builder, in the browser; recorded as reported)
+- **Vercel attempt, stopped:** the deploy was started on the signed-in Vercel account (dd8173569, GitHub login). After clicking Deploy for the new project "haunted-gift-atelier", Vercel showed a "Verify Your Identity" dialog asking for a 6-digit code emailed to dd8173569@gmail.com. The builder did not send the code and asked for another platform instead. The attempt stopped at that identity-verification step; no Vercel deployment resulted.
+- **Switch to Netlify:** the builder picked Netlify. Import on team dd8173569, free Starter tier; the GitHub App was authorized for this repo only. Working build settings: base directory = repo root, build command `npm run build`, publish directory `.next`, no environment variables.
+- **First build FAILED:** Netlify auto-detected the base directory as `packages/mcp-catalog` (it has a `package.json` but no build script), exit 2. Fixed with one retry, base directory set to the repo root. The pin is now in `netlify.toml`.
+- **Visibility:** the site was initially Private; it was set to Public.
+- **Prebuild ran on Netlify:** the build log shows CATALOG OK, 22 products, 2 width warnings. This answers Q-REL5 for Netlify (Vercel variant moot).
+- **Credits:** 15 of 300 Netlify credits used.
+- **Live:** https://haunted-gift-atelier.netlify.app/ (main@`1e2e0ff`, Published/Live; homepage verified rendering by a separate browser task).
+
+### 2026-11-22 — Session 21: judge-proofing docs and config (Kiro, non-interactive)
+- Prompt at `/tmp/kiro-prompts/session21-m6-judge-proofing.txt`. Docs and config only; no behaviour change. First launch failed at once with `ModelRegistryUnavailableError` ("Kiro could not load the available models", server error); retried after 90 s and ran. The failed launch is not counted as a session.
+- Changed: `netlify.toml` (new); `README.md` (Status rewritten, "Live site" section added); `.kiro/steering/tech.md` (Netlify in place of Vercel, two lines); `.kiro/specs/reliability/requirements.md` and `design.md` (Q-REL5 answered for Netlify; one table question cell reworded from "on Vercel" to "on the deploy host"); `.kiro/specs/polish-deploy/requirements.md` and `design.md` (Netlify note, Q15 wording); `.kiro/specs/gift-presentation/requirements.md` and `design.md` (Q15: 200 in dev, 404 in production, confirmation PENDING); `docs/qa-reports/polish-m4-audit.md` (one M6 line appended after O-1); this log (this section, Q-REL5 and Q15 items).
+- Checks (run in this session, local): `npm run build` exit 0, `prebuild` ran first (CATALOG OK: 22 products, version 1.0.0, 2 warnings), 30/30 static pages; `npm test` 1585 passed in 62 files; `npm run typecheck` clean (exit 0); `npm run lint` 0 errors + 1 known warning (`AgeBand` unused); `npm run validate-catalog` OK. Matches the baselines.
+- Pushing to `main` auto-triggers a Netlify production redeploy. Verification of that redeploy belongs to the coordinator's close-out and is NOT claimed here. No browser check, production-404 confirmation, or T4.3 result is claimed anywhere in this session. The counts table is not updated here (coordinator, close-out).
+
+### 2026-11-22 — Clean-browser pass (browser task + coordinator verification)
+- Full record: `docs/qa-reports/clean-browser-m6.md`. Browser observations came from a separate browser task on the live site; the coordinator independently verified the key claims with curl.
+- Journey by taps (newborn, baby shower, under ₹2,500): picks TNZ-1056 ₹1,674, TOB-1008 ₹1,899, TBZ-1013 ₹2,324, in that order. Safety verdict + true-size viewer on all three detail pages; gift wrap works; buy link points to tinytiaraa.com (href verified).
+- **O-1 / Q15 CONFIRMED:** `/piece/NOPE-0000` returns HTTP 404 in production (curl-verified) and shows the soft-404 page. Q15 is closed; the spec notes now record the confirmation (see the fold-in entry below).
+- `/piece/TNZ-1058` out of stock, no buy link. `/picks` with no params redirects to `/find`. `/atelier` renders 22 pieces, out-of-stock greyed out.
+- **Correction — browser misread, no bug:** the browser task claimed the `/picks` "See details" links for picks 2 and 3 had wrong hrefs (`/piece/TNZ-1055`, `/piece/TNZ-1057`). FALSE: the live `/picks` HTML (exact persona, `m` built with the repo's own `toModel` + `encodeModelParam`) shows exactly `/piece/TNZ-1056`, `/piece/TOB-1008`, `/piece/TBZ-1013`; TNZ-1055/TNZ-1057 do not exist in `data/catalog.json`; `toPickViews` → `pieceHref` cannot produce SKUs outside the catalog. No code change.
+- **Netlify "Powered by Netlify" badge (open decision):** the served HTML contains an injected script `netlify/scripts/hud?variant=public` (curl-confirmed) plus an HTML comment "Netlify hosting facts for this site"; the floating badge visually overlaps the landing footer text. Research (Netlify docs + pricing page, read 22 Nov 2026): on by default for new public Free-plan projects created on/after 19 Aug 2026; the only removal is the per-project dashboard toggle (Project configuration > General > Powered by Netlify badge), which the docs say may be locked depending on plan — whether this team's toggle is usable can only be checked in the Netlify dashboard. No `netlify.toml` option, no header, no CSS workaround (edge-injected script; isolated frame). Personal $9/month, Pro $20/month if an upgrade is the path. NO upgrade made.
+- Still unverified: phone-width layout (browser task could not resize; checked at ~905px only, no issues seen — the builder will eyeball it on his phone); T4.3 physical calibration (human step); fault-injection fallback `h1` (no thrown error was triggered in the pass); Q-REL2 screen-reader check.
+
+### 2026-11-22 — Clean-browser fold-in (coordinator, direct)
+- Session 22 was attempted three times (prompt at `/tmp/kiro-prompts/session22-m6-clean-browser.txt`); every launch failed at once with `ModelRegistryUnavailableError` ("Kiro could not load the available models", server error) — immediate, after a 120 s wait, and after a 300 s wait. The Kiro model registry was unavailable for the whole window, so the fold-in was done directly by the coordinator instead. The three failed launches are not counted as sessions.
+- Direct work: wrote `docs/qa-reports/clean-browser-m6.md`; added the clean-browser entry above; updated the Q15 notes to CONFIRMED in `.kiro/specs/gift-presentation/{design,requirements}.md` and `.kiro/specs/polish-deploy/{design,requirements}.md`; appended the M6 confirmation line to O-1 in `docs/qa-reports/polish-m4-audit.md`; updated the M3 Q15 item below to CONFIRMED; fixed two session 21 log nits (prompt path; the M6 intro line, which wrongly said the docs/config were "done directly"); added the M6 open-decisions section below; updated the counts table (32 sessions, 31 completed).
+
+## Milestone 6 — open decisions for the builder
+- **Netlify badge:** leave the floating "Powered by Netlify" badge, or remove it — check the dashboard toggle (Project configuration > General > Powered by Netlify badge) to see whether it is usable on this team's Free plan; if locked, removal needs Personal ($9/month) or Pro ($20/month). No upgrade made.
+- **Phone-width layout eyeball:** the builder's step (browser pass checked ~905px only).
+- **T4.3 physical calibration:** the builder's step (human with a real card + ruler).
+
 ## Notes
 
 - CORRECTION (21 Nov): an earlier draft of this log said the CLI runs on
@@ -1364,8 +1401,11 @@ The M5 close-out had accepted the REQ-REL-45 breach as a known gap for the Tue 2
 
 ## Milestone 3 — open questions for the Tue 24 Nov go/no-go checkpoint
 
-- Q15: `/piece/NOPE-0000` returns 200 + `noindex`, not 404 (observed;
-  the accepted fallback unless the builder wants a 404).
+- Q15 (updated 22 Nov 2026): `/piece/NOPE-0000` expected behaviour is
+  "200 in dev, 404 in production" (dev 200 + `noindex` observed in M3;
+  production 404 measured via `next start` in M4). CONFIRMED 22 Nov 2026:
+  the deployed URL returns HTTP 404 (curl-verified) and shows the
+  soft-404 page. Q15 is closed.
 - Dev-only Next.js "instant" validation warning on /find and /picks
   (`searchParams` outside `<Suspense>`); dev-only, build unaffected —
   leave, or set `instant = false` / add Suspense in M4/M6?
@@ -1382,7 +1422,7 @@ The M5 close-out had accepted the REQ-REL-45 breach as a known gap for the Tue 2
 - **Q-REL1 (Gemini key):** the optional phrasing layer is UNBUILT — no key exists, none was provided. The scripted-only journey is the shipped and tested default; every route passes its checks with all key variables unset. Does the user want to supply a Google AI Studio key, or is scripted-only the final answer (the layer is first in the scope-cut order anyway)?
 - **REQ-REL-45 breach (FIXED 21 Nov, session 20):** first-load gzip had grown +4.7 to +8.1 kB per route over the M4 baseline (`error.tsx` +4.4 kB — the boundary pulls the shared header into client JS; `not-found.tsx` +3.3 kB via the `next/link` chunk). The builder asked for the fix the same evening; the fallbacks were rewritten with an inline minimal header and plain `<a>` links, and the requirement is now MET on every route (+1.7 to +1.8 kB; the limit was not raised). The residual is the two boundary chunks themselves (error 1,072 B + global-error 854 B gzip). Full record: `docs/qa-reports/reliability-size-fix.md`. No checkpoint decision needed on this item anymore.
 - **0-pick models (E1 sweep, 10,512 of 34,560):** every model is still safe (I5 holds; note defined; browse link on), but 7,776 are Mom-band models whose category is not offered in the Mom flow (not reachable by taps), and 2,736 are child/teen/infant models that filter to nothing. Is the honest 0-pick state the right answer for those, or should the journey steer those users differently (e.g. surface the browse link earlier)?
-- **Q-REL5 (prebuild on Vercel):** `prebuild` runs `validate-catalog` on `npm run build` locally; it is NOT yet proven on Vercel's build environment — M6 deploy must confirm the build still runs `prebuild` and fails loudly on a bad catalog.
+- **Q-REL5 (prebuild on the deploy host — ANSWERED for Netlify, 22 Nov 2026):** the `prebuild` hook ran in the Netlify build; the build log shows CATALOG OK, 22 products, 2 width warnings. The Vercel variant of the question is moot: the deploy platform switched to Netlify in M6.
 - **Q-REL2 (loading.tsx screen-reader noise):** NOT RUN — `loading.tsx` renders a `role="status"` live region for every navigation to `/find`, `/picks`, `/atelier`, `/piece/[sku]`; the screen-reader check needs a human and was not run.
 - **Fault-injection `h1` (REQ-REL-60):** the boundary is wired and production masks thrown text, but the visible fallback `h1` was NOT verified — it renders client-side after hydration and needs a browser check (M6 clean-browser pass).
 - **T5.3 audit not run:** the `qa-auditor` agent was not invoked for M5, so the M5 checks are not independent of the build (same caveat as M4).

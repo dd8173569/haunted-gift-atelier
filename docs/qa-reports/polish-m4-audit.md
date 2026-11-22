@@ -26,6 +26,10 @@ Read-only audit, 21 Nov 2026, on the Wave 3 tree (uncommitted on top of HEAD 547
 
 **O-1 (not blocking, new): `/piece/NOPE-0000` serves no `main-content` and no `h1` in the HTML.** On the dev server the response is 200 and, on a production server (`next start`), 404. In both the title ("Piece not found | Haunted Gift Atelier"), the `noindex` tag and the skip link are in the HTML, but `id="main-content"` and `<h1` are not. The dev log says "Switched to client rendering because the server rendering errored: NEXT_HTTP_ERROR_FALLBACK;404", so the body arrives as a client-rendered template. The component has both elements and its test passes, so a browser most likely shows them after hydration, but no browser was available to confirm it. REQ-PD-53 says every page contains one `main-content` and one `<h1`; a missing-SKU URL is arguably outside "every page", and this was not changed. Two follow-ups for the builder: confirm in a browser (listed in the manual checklist), and decide whether the Q15 note "200 + noindex" should now read "200 in dev, 404 in production".
 
+**M6 update (22 Nov 2026):** the Q15 note now reads '200 in dev, 404 in production' (expected behaviour). Production-404 confirmation and the browser heading-after-hydration check are PENDING the M6 browser pass; neither is claimed here.
+
+**M6 confirmation (22 Nov 2026):** production 404 CONFIRMED — the deployed URL returns HTTP 404 for /piece/NOPE-0000 (curl-verified) and shows the soft-404 page. O-1's status question is closed. The served-HTML h1/main-content gap is the documented Next.js client-rendering fallback and is unchanged.
+
 **O-2 (not blocking): a decorative `opacity-20` on `components/CobwebCorner.tsx`.** It is an `aria-hidden` hero-only stroke, not text, so the text-alpha floor does not apply.
 
 ## Known open question

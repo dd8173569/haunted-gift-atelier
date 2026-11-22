@@ -11,12 +11,12 @@ inclusion: always
 - NEVER put an ad-hoc colour (`#hex`, `rgb()`, arbitrary Tailwind value like `bg-[#fff]`) in a component. Use Tailwind theme tokens defined in the one design-token config.
 - NEVER add a database, auth, payments, or a runtime external API. With the optional LLM route off, the app makes no network call beyond its own origin.
 - NEVER disable a failing test or loosen a golden case to make it pass. Fix the code or raise a spec change.
-- NEVER commit an API key. Keys live in Vercel env vars.
+- NEVER commit an API key. Keys live in Netlify environment variables.
 - NEVER write Next.js code from memory: this repo's Next.js version has breaking changes. Read the relevant guide in `node_modules/next/dist/docs/` first (see `AGENTS.md`).
 
 ## Stack
 
-- Next.js App Router, TypeScript with `strict: true`, Tailwind CSS 4 (design tokens in one config), deployed on Vercel Hobby. Versions are pinned in `package.json`.
+- Next.js App Router, TypeScript with `strict: true`, Tailwind CSS 4 (design tokens in one config), deployed on Netlify (Starter tier, free). Versions are pinned in `package.json`.
 - Data: `data/catalog.json` (versioned) and `public/catalog/` photos. No database.
 - Fonts: one serif display and one sans through `next/font` (self-hosted).
 - Optional LLM: server route `app/api/chat/route.ts` only, phrasing only, absent until Milestone 5, scripted fallback is the default.

@@ -315,7 +315,7 @@ Decisions:
 | Out of stock in the title | none | A tab or a history entry of an unavailable piece should say so; it uses the catalog's `availability`, not a SKU. |
 | Template in the root layout | per-page `absolute` titles | One suffix, one place. The landing keeps the default string, so it is not suffixed twice. |
 | Names verbatim, trailing full stop kept | trim | "Swastik - Tabeez for Lucky Charms. | Haunted Gift Atelier" reads oddly but is the catalog's value; catalog rule 5 forbids editing names. |
-| Unknown SKU title "Piece not found" | 404 title | The route answers 200 with the not-found UI (Q15, accepted); the title matches what the user sees. No other metadata, so a hand-typed URL gets no description. |
+| Unknown SKU title "Piece not found" | 404 title | The route answers 200 in dev and 404 in production with the not-found UI (Q15; production 404 CONFIRMED on the deployed URL 22 Nov 2026, curl-verified); the title matches what the user sees. No other metadata, so a hand-typed URL gets no description. |
 
 Cache Components: `generateMetadata` awaits `params`, which is runtime data, but the route has `generateStaticParams` returning the 22 SKUs, so the same prerender path that already builds the page covers it (the page awaits `params` too). The builder confirms with `npm run build` (the M3 build passed with the page awaiting `params`). If the build raises the "runtime data in `generateMetadata`" error, the documented fixes (`use cache`, or the dynamic-marker component) apply; read `generate-metadata.md` "With Cache Components" first. A title for a page that Next renders in the same pass needs no further change.
 
