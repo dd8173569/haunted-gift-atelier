@@ -1696,3 +1696,9 @@ All results below were re-run independently by the Phase 10 coordinator on
 - **T5.3 audit not run:** the `qa-auditor` agent was not invoked for M5, so the M5 checks are not independent of the build (same caveat as M4).
 - **T4.3 physical calibration (from M3):** still not run — needs a human with a real card + ruler.
 - **Balance watch:** the Kiro credit balance was NOT re-checked during M5; the 12:22 IST snapshot (~284 plan + 500 bonus, reset 1 Dec) stands after four more sessions.
+
+## Post-submission correction — Kiro usage field (22 Nov 2026, ~18:50 IST, direct)
+
+- The Phase 10 gate found the Kiro usage write-up was not on the public Devpost page (V5). An edit-view check the same evening confirmed it IS saved complete in the form's dedicated "Explain how your project meets the main technology requirement" field, which Devpost labels "Additional info — For judges and organizers" (not shown on the public page) — judges see it. V5 closed.
+- The same check found the saved text's Steering bullet named a steering file "kiro-verify" that does not exist (real files: product, tech, structure, catalog-rules) and reworded the bullet — the submission browser step had altered the approved draft text. With the builder's go, the whole field was replaced with the approved draft text verbatim via his Chrome the same evening; verified after saving (Steering bullet reads "Four steering files (product, tech, structure, catalog-rules)"; "kiro-verify" appears nowhere). Submission still SUBMITTED, 5/5 steps done.
+- The cover image (1200x800, exact TNZ-1056 photo, text wordmark) was uploaded to the project gallery the same evening with the builder's approval and is visible on the public page.
