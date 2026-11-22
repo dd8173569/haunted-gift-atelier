@@ -18,8 +18,9 @@ three are In Stock in `data/catalog.json`; the prices match the catalog.)
 
 ## Route checks
 
-- `/piece/NOPE-0000`: HTTP 404 in production (curl-verified), soft-404
-  page shown. O-1 / Q15 CONFIRMED — see below.
+- `/piece/NOPE-0000`: HTTP 404 in production in 14 of 15 curls (one 200
+  observed once — see below), soft-404 page shown. O-1 / Q15 CONFIRMED
+  with the caveat below.
 - `/piece/TNZ-1058`: out of stock, no buy link.
 - `/picks` with no params: redirects to `/find`.
 - `/atelier`: grid renders 22 pieces, out-of-stock greyed out.
@@ -27,10 +28,17 @@ three are In Stock in `data/catalog.json`; the prices match the catalog.)
 ## Q15 / O-1 confirmed
 
 Expected behaviour "200 in dev, 404 in production" is now confirmed on
-the deployed URL: curl returns 404 for `/piece/NOPE-0000` and the browser
-shows the soft-404 page. Q15 is closed. The served-HTML `h1` /
-`main-content` gap is the documented Next.js client-rendering fallback
-and is unchanged.
+the deployed URL: curl returns 404 for `/piece/NOPE-0000` in 14 of 15
+observations (the coordinator's curls plus the parent's), and the browser
+shows the soft-404 page. Caveat: one curl returned 200 — the first curl
+~3.5 minutes after the M6 push, plausibly a cold-start streaming race
+(if the shell flushes before `notFound()` throws, the status stays 200).
+The 200 response body was not captured, but by the known mechanism it is
+the same client-rendered not-found template observed in dev as 200 +
+`noindex`. The soft-404 page renders either way, so the user-visible
+behaviour is stable; only the status code varies. Q15 is closed with
+this caveat recorded. The served-HTML `h1` / `main-content` gap is the
+documented Next.js client-rendering fallback and is unchanged.
 
 ## Correction: the /picks href claim was a browser misread (no bug, no fix)
 

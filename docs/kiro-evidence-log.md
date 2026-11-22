@@ -1334,7 +1334,7 @@ M6 started 22 Nov, ahead of schedule (planned 2 Dec), on the size-fix code as-is
 ### 2026-11-22 — Clean-browser pass (browser task + coordinator verification)
 - Full record: `docs/qa-reports/clean-browser-m6.md`. Browser observations came from a separate browser task on the live site; the coordinator independently verified the key claims with curl.
 - Journey by taps (newborn, baby shower, under ₹2,500): picks TNZ-1056 ₹1,674, TOB-1008 ₹1,899, TBZ-1013 ₹2,324, in that order. Safety verdict + true-size viewer on all three detail pages; gift wrap works; buy link points to tinytiaraa.com (href verified).
-- **O-1 / Q15 CONFIRMED:** `/piece/NOPE-0000` returns HTTP 404 in production (curl-verified) and shows the soft-404 page. Q15 is closed; the spec notes now record the confirmation (see the fold-in entry below).
+- **O-1 / Q15 CONFIRMED (with one caveat):** `/piece/NOPE-0000` returns HTTP 404 in production in 14 of 15 curls (curl-verified) and shows the soft-404 page. One curl returned 200 — the first curl ~3.5 minutes after the M6 push, plausibly a cold-start streaming race (shell flushes before `notFound()` throws). The soft-404 page renders either way. Q15 is closed with the caveat recorded; the spec notes record the confirmation (see the fold-in entry below).
 - `/piece/TNZ-1058` out of stock, no buy link. `/picks` with no params redirects to `/find`. `/atelier` renders 22 pieces, out-of-stock greyed out.
 - **Correction — browser misread, no bug:** the browser task claimed the `/picks` "See details" links for picks 2 and 3 had wrong hrefs (`/piece/TNZ-1055`, `/piece/TNZ-1057`). FALSE: the live `/picks` HTML (exact persona, `m` built with the repo's own `toModel` + `encodeModelParam`) shows exactly `/piece/TNZ-1056`, `/piece/TOB-1008`, `/piece/TBZ-1013`; TNZ-1055/TNZ-1057 do not exist in `data/catalog.json`; `toPickViews` → `pieceHref` cannot produce SKUs outside the catalog. No code change.
 - **Netlify "Powered by Netlify" badge (open decision):** the served HTML contains an injected script `netlify/scripts/hud?variant=public` (curl-confirmed) plus an HTML comment "Netlify hosting facts for this site"; the floating badge visually overlaps the landing footer text. Research (Netlify docs + pricing page, read 22 Nov 2026): on by default for new public Free-plan projects created on/after 19 Aug 2026; the only removal is the per-project dashboard toggle (Project configuration > General > Powered by Netlify badge), which the docs say may be locked depending on plan — whether this team's toggle is usable can only be checked in the Netlify dashboard. No `netlify.toml` option, no header, no CSS workaround (edge-injected script; isolated frame). Personal $9/month, Pro $20/month if an upgrade is the path. NO upgrade made.
@@ -1343,6 +1343,13 @@ M6 started 22 Nov, ahead of schedule (planned 2 Dec), on the size-fix code as-is
 ### 2026-11-22 — Clean-browser fold-in (coordinator, direct)
 - Session 22 was attempted three times (prompt at `/tmp/kiro-prompts/session22-m6-clean-browser.txt`); every launch failed at once with `ModelRegistryUnavailableError` ("Kiro could not load the available models", server error) — immediate, after a 120 s wait, and after a 300 s wait. The Kiro model registry was unavailable for the whole window, so the fold-in was done directly by the coordinator instead. The three failed launches are not counted as sessions.
 - Direct work: wrote `docs/qa-reports/clean-browser-m6.md`; added the clean-browser entry above; updated the Q15 notes to CONFIRMED in `.kiro/specs/gift-presentation/{design,requirements}.md` and `.kiro/specs/polish-deploy/{design,requirements}.md`; appended the M6 confirmation line to O-1 in `docs/qa-reports/polish-m4-audit.md`; updated the M3 Q15 item below to CONFIRMED; fixed two session 21 log nits (prompt path; the M6 intro line, which wrongly said the docs/config were "done directly"); added the M6 open-decisions section below; updated the counts table (32 sessions, 31 completed).
+
+### 2026-11-22 — M6 close-out (coordinator, direct)
+- Independent verification on the uncommitted tree (re-run, not the session's numbers): `npm test` **1585/1585 in 62 files**; `npm run typecheck` clean; `npm run lint` 0 errors + 1 known warning; `npm run validate-catalog` OK; `npm run build` passes — `prebuild` ran first, 30/30 static pages, route table identical.
+- The M6 fold-in was committed and pushed to origin/main at `1290831`; this close-out entry and the Q15 correction below ride in the follow-up commit. Each push auto-triggers a Netlify production redeploy.
+- Production checks ~3–6 minutes after the push: homepage HTTP 200 (23,529 bytes, "Haunted Gift Atelier" present, HUD script still present as expected — no badge change was made); `/atelier` 200; `/piece/NOPE-0000` 404 in 14 of 15 curls, with one 200 on the first curl after the push (streaming-timing race — see the Q15 correction).
+- Redeploy verification: UNVERIFIED from the VM side. The commits changed docs/config only, so no served content distinguishes the new deploy from the old one (client chunk hashes are identical because the code is identical), and Netlify keeps the previous deploy live if the new build fails — the site staying up proves nothing about the new build. The new build's success is checkable only in the Netlify dashboard (deploy log).
+- Q15 correction (this commit): the first fold-in recorded the production 404 as a blanket confirmation; the coordinator's own follow-up curls found one 200 in 15 observations, so the record now states the 14/15 tally and the streaming-race caveat in the QA note, the log, the four spec notes, and the O-1 addendum.
 
 ## Milestone 6 — open decisions for the builder
 - **Netlify badge:** leave the floating "Powered by Netlify" badge, or remove it — check the dashboard toggle (Project configuration > General > Powered by Netlify badge) to see whether it is usable on this team's Free plan; if locked, removal needs Personal ($9/month) or Pro ($20/month). No upgrade made.
@@ -1404,8 +1411,9 @@ M6 started 22 Nov, ahead of schedule (planned 2 Dec), on the size-fix code as-is
 - Q15 (updated 22 Nov 2026): `/piece/NOPE-0000` expected behaviour is
   "200 in dev, 404 in production" (dev 200 + `noindex` observed in M3;
   production 404 measured via `next start` in M4). CONFIRMED 22 Nov 2026:
-  the deployed URL returns HTTP 404 (curl-verified) and shows the
-  soft-404 page. Q15 is closed.
+  the deployed URL returns HTTP 404 in 14 of 15 curls (one 200 observed
+  once — a streaming-timing race) and shows the soft-404 page. Q15 is
+  closed with the caveat recorded.
 - Dev-only Next.js "instant" validation warning on /find and /picks
   (`searchParams` outside `<Suspense>`); dev-only, build unaffected —
   leave, or set `instant = false` / add Suspense in M4/M6?

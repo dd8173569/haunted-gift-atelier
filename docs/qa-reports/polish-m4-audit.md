@@ -28,7 +28,7 @@ Read-only audit, 21 Nov 2026, on the Wave 3 tree (uncommitted on top of HEAD 547
 
 **M6 update (22 Nov 2026):** the Q15 note now reads '200 in dev, 404 in production' (expected behaviour). Production-404 confirmation and the browser heading-after-hydration check are PENDING the M6 browser pass; neither is claimed here.
 
-**M6 confirmation (22 Nov 2026):** production 404 CONFIRMED — the deployed URL returns HTTP 404 for /piece/NOPE-0000 (curl-verified) and shows the soft-404 page. O-1's status question is closed. The served-HTML h1/main-content gap is the documented Next.js client-rendering fallback and is unchanged.
+**M6 confirmation (22 Nov 2026):** production 404 CONFIRMED — the deployed URL returns HTTP 404 for /piece/NOPE-0000 in 14 of 15 curls (curl-verified) and shows the soft-404 page. Caveat: one curl returned 200 (first curl after the M6 push — a streaming-timing race); the page renders either way. O-1's status question is closed with the caveat recorded. The served-HTML h1/main-content gap is the documented Next.js client-rendering fallback and is unchanged.
 
 **O-2 (not blocking): a decorative `opacity-20` on `components/CobwebCorner.tsx`.** It is an `aria-hidden` hero-only stroke, not text, so the text-alpha floor does not apply.
 
