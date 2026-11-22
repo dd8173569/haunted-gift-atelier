@@ -1351,6 +1351,84 @@ M6 started 22 Nov, ahead of schedule (planned 2 Dec), on the size-fix code as-is
 - Redeploy verification: UNVERIFIED from the VM side. The commits changed docs/config only, so no served content distinguishes the new deploy from the old one (client chunk hashes are identical because the code is identical), and Netlify keeps the previous deploy live if the new build fails — the site staying up proves nothing about the new build. The new build's success is checkable only in the Netlify dashboard (deploy log).
 - Q15 correction (this commit): the first fold-in recorded the production 404 as a blanket confirmation; the coordinator's own follow-up curls found one 200 in 15 observations, so the record now states the 14/15 tally and the streaming-race caveat in the QA note, the log, the four spec notes, and the O-1 addendum.
 
+## Phase 7 — Judge simulation (22 Nov 2026)
+
+- **Session 22 attempted twice, both launches failed; the review and fixes
+  were done directly by the coordinator.** Prompt at
+  `/tmp/kiro-prompts/session22-phase7-judge-sim.txt` (judge-sim review).
+  First launch failed at once with `ModelRegistryUnavailableError` ("Kiro
+  could not load the available models", server error); the retry failed
+  after ~23 s with `ServerConnectionResetError` ("Your connection was
+  interrupted", transient) after generating a response and aborting 4
+  tools. The Kiro model service was unavailable for this window (same as
+  M6's session 22 attempts). Per the Phase 7 brief the work was done
+  directly and is recorded honestly as direct work — nothing in this
+  section is presented as Kiro output. The two failed launches are NOT
+  counted as sessions (established rule); the counts table is unchanged
+  (32 sessions, 31 completed).
+- **Method (direct):** every live page fetched with curl and read as
+  rendered text (`/`, `/find`, `/atelier`, `/piece/TNZ-1056`,
+  `/piece/TNZ-1058`, `/piece/NOPE-0000`, `/picks` with the golden-1 model
+  param built with the repo's own `toModel` + `encodeModelParam`); repo
+  read directly (README, this log, specs, `phase4-prd.md`, components,
+  tests). No browser exists on this machine, so no browser check is
+  claimed. Full report:
+  `../hidden_files/phase7-judge-sim.md` (outside the repo).
+- **Scores (simulated panel):** Potential Impact 8, Technological
+  Implementation 9, Design 8, Innovation/Idea 7, Presentation 8 —
+  average 8.0. The known Phase 3 risk (judge sees "a gift quiz with
+  pretty UI") is partly answered: the landing DOES lead with the trust
+  problem ("Buying baby jewelry online? You can't tell how big it is —
+  or whether it suits the little one." — verified in the live HTML), but
+  before this phase's fix the hero's solution line named only the fit
+  check, not the true-size viewer, and a skimming judge still meets a
+  6-question quiz first. Golden 1 reproduces exactly through the live UI
+  (TBZ-1013 ₹2,324, TNZ-1056 ₹1,674, TBZ-1017 ₹2,099, correct hrefs and
+  buy links). Submission-readiness verified: MIT license present; `/.kiro`
+  at root (8 specs, 4 steering, 2 hooks, 3 agents, `settings/mcp.json`,
+  34 files tracked, not gitignored); repo public (unauthenticated curl
+  200); live URL working on all routes.
+- **Fixes (direct, small/safe only; no matching/safety/catalog/persona
+  behaviour changed):**
+  - F1 hero subhead (`app/page.tsx`): "…finds the piece, shows it at a
+    size you calibrate, and gives you a plain-language fit check." —
+    mirrors the meta description and step-3 copy; promises the
+    calibration, not an uncalibrated "true size" claim.
+  - F4 featured piece (`app/page.tsx`): a "Featured piece" section
+    between the hero and "How it works" — the exact TNZ-1056 photo
+    through `ProductPhoto` (alt = catalog name verbatim, REQ-PD-42), the
+    name, and a "See its fit check and size view" link to
+    `/piece/TNZ-1056`. No price in the block (the detail page carries
+    price + footnote). Uses only locked tokens/components; the REQ-PD-52
+    design lock (tokens, type scale, spacing/radius, focus rule) is not
+    touched.
+  - Tests: new `tests/landing.phase7.test.tsx` (4 tests); updated
+    `tests/polish.copy.test.tsx` — the landing assertion pinned ZERO
+    `<img>` elements, broader than the spec's rule ("no LOGO image",
+    REQ-PD-42). It now pins exactly one `<img>`: the TNZ-1056 catalog
+    photo with verbatim alt. The axe matrix (landing state) still passes
+    with 0 violations.
+  - F2 README: Status updated (Phase 7 done, 1589 tests / 63 files);
+    "How Kiro was used" now carries the verified headline numbers (32
+    Kiro CLI sessions, 31 completed, 8 specs, 28 live MCP calls, 1589
+    tests).
+  - F3 Phase 4 docs (`hidden_files/phase4-prd.md`,
+    `hidden_files/phase4-architecture.md`): deploy host Vercel → Netlify
+    in every forward-looking statement, specs 7 → 8 in the PRD Devpost
+    outline, plus a dated 22 Nov 2026 note on each doc. Historical
+    research docs untouched.
+- **Verification (coordinator, re-run directly):** `npm test` **1589/1589
+  in 63 files** (baseline 1585/62; +4 new tests, 0 regressions); `npm run
+  typecheck` clean; `npm run lint` 0 errors + 1 known warning (`AgeBand`,
+  pre-existing); `npm run build` passes — prebuild CATALOG OK, 30/30
+  static pages. Findings NOT fixed (recorded in the report): no CI
+  (token lacks workflow scope — web-UI add is a builder step); flow pages
+  have no footer (intentional focus, low value); Netlify badge (open
+  builder decision, may need a paid upgrade); `/picks` no-`m` 200 +
+  meta-refresh (frozen M2 OQ-1); the 404-status quirk (framework
+  behaviour, recorded not chased). Carried gaps: 4 persona calls,
+  phone-width layout, T4.3, fault-injection `h1`, Q-REL2.
+
 ## Milestone 6 — open decisions for the builder
 - **Netlify badge:** leave the floating "Powered by Netlify" badge, or remove it — check the dashboard toggle (Project configuration > General > Powered by Netlify badge) to see whether it is usable on this team's Free plan; if locked, removal needs Personal ($9/month) or Pro ($20/month). No upgrade made.
 - **Phone-width layout eyeball:** the builder's step (browser pass checked ~905px only).

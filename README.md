@@ -11,9 +11,10 @@ matching, a per-pick safety verdict, and a true-size viewer.
 
 ## Status
 
-Milestones 1–5 are done, plus the REQ-REL-45 size fix (21 Nov 2026): 1585
-tests in 62 files. Milestone 6 deployed the app live on Netlify on 22 Nov 2026.
-See `docs/kiro-evidence-log.md` for an honest record of what Kiro did vs what
+Milestones 1–5 are done, plus the REQ-REL-45 size fix (21 Nov 2026).
+Milestone 6 deployed the app live on Netlify on 22 Nov 2026. Phase 7 (judge
+simulation + fixes) followed the same day: 1589 tests in 63 files. See
+`docs/kiro-evidence-log.md` for an honest record of what Kiro did vs what
 was done directly.
 
 ## Live site
@@ -40,7 +41,10 @@ npm run validate-catalog
 Specs first: `.kiro/specs/` (requirements → design → tasks), steering files
 with refusal-led brand rules, hooks (catalog validation, matching tests), a
 custom MCP server over the catalog (`packages/mcp-catalog`), and
-role-specialised agents (`.kiro/agents/`). Full evidence:
+role-specialised agents (`.kiro/agents/`). 32 Kiro CLI sessions (31 completed)
+built it spec-first across 8 specs; the MCP server served 28 live catalog
+calls during the build; the suite holds 1589 tests, including property-based
+invariants over the whole matching space. Full evidence:
 `docs/kiro-evidence-log.md`.
 
 ## Data honesty

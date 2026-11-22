@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CobwebCorner from "../components/CobwebCorner";
 import PriceFootnote from "../components/PriceFootnote";
+import ProductPhoto from "../components/ProductPhoto";
 import SiteHeader from "../components/SiteHeader";
 
 /* Landing — Haunted Gift Atelier (PRD §1, step 1).
@@ -81,7 +82,8 @@ export default function Home() {
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-plum/80">
               Buying baby jewelry online? You can&rsquo;t tell how big it is —
               or whether it suits the little one. Three taps, and the atelier
-              finds the piece, then gives you a plain-language fit check.
+              finds the piece, shows it at a size you calibrate, and gives you
+              a plain-language fit check.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
@@ -97,6 +99,33 @@ export default function Home() {
                 Browse the atelier
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* Featured piece (Phase 7): one real piece on the landing, so a
+            first-time visitor sees jewelry, not only words. No price here —
+            the detail page carries the price + footnote. Photo exact, as
+            listed; name verbatim from the catalog. */}
+        <section aria-labelledby="featured-heading" className="px-6 pb-14 sm:px-10">
+          <div className="mx-auto max-w-xs text-center">
+            <h2 id="featured-heading" className="font-display text-xl font-semibold">
+              Featured piece
+            </h2>
+            <div className="mt-4">
+              <ProductPhoto
+                src="/catalog/TNZ-1056.png"
+                alt="Blue Evil Eye Nazariya – 925 Silver Baby Bracelet"
+              />
+            </div>
+            <p className="mt-4 text-sm leading-relaxed text-plum/75">
+              Blue Evil Eye Nazariya – 925 Silver Baby Bracelet
+            </p>
+            <Link
+              href="/piece/TNZ-1056"
+              className="mt-2 inline-flex min-h-11 items-center px-3 text-sm font-medium underline"
+            >
+              See its fit check and size view
+            </Link>
           </div>
         </section>
 

@@ -372,7 +372,15 @@ describe("landing, /find and the not-found page", () => {
     expect(t).toContain(FOOTNOTE);
     expect(t).toContain("Tiny Tiaraa");
     expectNoDiscount(container, "/");
-    expect(container.querySelectorAll("img, svg image")).toHaveLength(0);
+    // Phase 7: the landing features one real piece (TNZ-1056) through
+    // ProductPhoto. The rule is "no LOGO image" (REQ-PD-42): every <img>
+    // must be a catalog photo with alt equal to the product name verbatim.
+    const imgs = container.querySelectorAll("img, svg image");
+    expect(imgs).toHaveLength(1);
+    expect(imgs[0].getAttribute("src")).toBe("/catalog/TNZ-1056.png");
+    expect(imgs[0].getAttribute("alt")).toBe(
+      "Blue Evil Eye Nazariya – 925 Silver Baby Bracelet",
+    );
     expect(trueSizeCount(container)).toBe(0);
     expectFootnoteOnEveryPrice(container, "/");
   });
