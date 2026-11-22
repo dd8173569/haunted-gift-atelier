@@ -1237,8 +1237,8 @@ T4.4 skipped on purpose (no human keyboard pass, so no slider step buttons; Q-PD
 
 | Metric | Count |
 |---|---|
-| Kiro sessions (non-interactive CLI) | 32 (M1: 8; M2: 6 — session 4 spec, 5a Wave 1, 5b Wave 2, 5c Wave 3, 5d Wave 4, session 6 Wave 5; M3: 5 — session 7 specs, session 8 safety-verdict, session 9 true-size-viewer, session 10 gift-presentation, session 10b retry Wave 4; M4: 7 — session 11 spec, 12 Wave 0+1, 13a Wave 2 part 1, 13b Wave 2 part 2, 14a Wave 3 part 1, 14b Wave 3 part 2, 15 Wave 4; M5: 4 — session 16 spec, 17 Waves 0+1, 18 Waves 2+3, 19 Waves 4+5; REQ-REL-45 size fix: 1 — session 20; M6: 1 — session 21) |
-| Kiro sessions completed successfully | 31 (M1: 7 + session 1 interrupted; M2: 6 of 6; M3: 5; M4: 7 of 7; M5: 4 of 4; size fix: 1 of 1; M6: 1 of 1) |
+| Kiro sessions (non-interactive CLI) | 33 (M1: 8; M2: 6 — session 4 spec, 5a Wave 1, 5b Wave 2, 5c Wave 3, 5d Wave 4, session 6 Wave 5; M3: 5 — session 7 specs, session 8 safety-verdict, session 9 true-size-viewer, session 10 gift-presentation, session 10b retry Wave 4; M4: 7 — session 11 spec, 12 Wave 0+1, 13a Wave 2 part 1, 13b Wave 2 part 2, 14a Wave 3 part 1, 14b Wave 3 part 2, 15 Wave 4; M5: 4 — session 16 spec, 17 Waves 0+1, 18 Waves 2+3, 19 Waves 4+5; REQ-REL-45 size fix: 1 — session 20; M6: 1 — session 21; Phase 10: 1 — session 22 (evidence-log close-out)) |
+| Kiro sessions completed successfully | 32 (M1: 7 + session 1 interrupted; M2: 6 of 6; M3: 5; M4: 7 of 7; M5: 4 of 4; size fix: 1 of 1; M6: 1 of 1; Phase 10: 1 of 1) |
 | MCP server calls | 28 via a Kiro MCP client (`matching_explain` × 5 — 3 in session 6, 1 in 10b, 1 in session 15, all matching the golden cases; `catalog_get` × 23 — 1 in 10b for TNZ-1058, 22 in session 15 for the T4.5 audit alt check). `catalog_search`, `catalog_validate` still 0 live client calls (M1 smoke tests used piped JSON-RPC). |
 | Hook firings observed | 0 (hooks defined in M1; CLI firing unverified — T4.2 and T5.1 attempts could not observe firing from the CLI; both hooks' commands were verified to fail visibly by hand) |
 | Property-test counterexamples found | 3 (M1: 2; M2: 1 — Wave 1 `normalize()` adultIsMom leftover, fixed in the implementation with a regression test; M3: 0 property counterexamples — session 9 fixed 2 boundary bugs found in unit tests, not property tests; M4: 0 product counterexamples — the P-PD-4 "name exactly once" failure was a test-generator fix, and the T3.3 SizeOutlines border was found by the contrast scan, not a property test; M5: 0 product counterexamples — the one Wave 3 finding, C-R2-1, was a test-oracle correction; the code was as designed) |
@@ -1501,6 +1501,115 @@ M6 started 22 Nov, ahead of schedule (planned 2 Dec), on the size-fix code as-is
   files (stills, voiceover, assembly script)
   `../hidden_files/phase8-work/`. **YouTube upload NOT done — it needs
   the user's Google account (Phase 9 or his step).**
+
+## Phase 9 — Devpost submission prep + submission (22 Nov 2026)
+
+- **Prep was direct work; no Kiro session ran.** The Devpost submission
+  draft (2,098 words, field-by-field) was written directly at
+  `../hidden_files/phase9-devpost-draft.md`: title, tagline, description
+  leading with the trust problem, challenges / accomplishments / what's
+  next, the Kiro usage write-up (verified against this log: 32 sessions /
+  31 completed, 8 specs, 4 steering, 2 hooks with 0 firings stated, 3
+  agents, MCP 28 calls, 1589 tests, coverage 99.02 / 100 / 97.42, and an
+  outage note for the M6, Phase 7 and Phase 8 direct work), Costume Contest
+  + Best Startup, links with a YouTube placeholder to fill, and a
+  submission checklist. Kiro session 22 was attempted twice for the draft
+  and both launches failed (`ModelRegistryUnavailableError`, then
+  `ServerConnectionResetError` after a 180 s wait). This is the same outage
+  as M6, Phase 7 and Phase 8. The failed launches are NOT counted as
+  sessions (established rule). The repo was untouched by the prep work.
+- **YouTube upload (browser task in the builder's Chrome, 22 Nov ~17:30
+  IST):** the demo video was uploaded Public from the builder's Google
+  account (muktiyarahmed380@gmail.com):
+  https://www.youtube.com/watch?v=rG2ZEnsQFAY. Title, description, "not
+  made for kids" and Public visibility were verified on the public watch
+  page, and playback was checked clean. The URL was filled into the Devpost
+  draft.
+- **Submission (browser task in the builder's Chrome, 22 Nov 2026):**
+  submitted from Devpost account muktiyarahmed380. Devpost published
+  timestamp 2026-11-22T07:04:39-05:00. Public project page:
+  https://devpost.com/software/haunted-gift-atelier. Category: Costume
+  Contest; bonus prize: Best Startup Project. Form answers: submitter
+  country of residence India; submitter type Individual; not an AWS
+  employee; registered for Kiroween 2025: No; how much the hackathon
+  helped develop new skills: "A lot"; likelihood of using Kiro again:
+  "Likely"; founder LinkedIn https://linkedin.com/in/pintukumar12; startup
+  website https://www.tinytiaraa.com. The age-of-majority and
+  eligible-jurisdiction attestations were checked (the builder is an adult;
+  India is eligible).
+- **Honest notes on the submission as filed:**
+  - The Devpost form presented a single About field, so the description,
+    challenges, accomplishments and what's-next went in as one structured
+    text.
+  - Devpost hyphenated the Built With tags: fast-check, kiro-cli, netlify,
+    next.js-16, react-19, tailwind-css-4, vitest.
+  - The Costume Contest special prize is labelled "Best Student Project:
+    Costume Contest" in the form. It was selected, but the submitter is not
+    a student, so that student-labelled prize likely does not apply. The
+    Costume Contest category entry stands.
+  - No cover/thumbnail image was uploaded at submit time. A 3:2 draft is
+    pending the builder's approval (Phase 10).
+  - The Kiro usage write-up is NOT visible on the public project page as
+    fetched 22 Nov (only the kiro-cli Built With tag and one "Kiro session"
+    mention in Accomplishments). It may sit in a non-public Additional Info
+    field, which cannot be verified from outside. The submission is
+    editable until 4 Dec 5pm EST, so this should be checked in the edit
+    view, and the write-up added to the public story if it is missing.
+
+## Phase 10 — Final quality gate (22 Nov 2026)
+
+All results below were re-run independently by the Phase 10 coordinator on
+22 Nov 2026.
+
+- **Devpost project page (signed-out fetch):** full story present
+  (problem, solution, how it works, differentiators, honest scope notes,
+  challenges, accomplishments, what's next). YouTube embed present
+  (`youtube.com/embed/rG2ZEnsQFAY`). Built With tags present. "Try it out"
+  links present: the live Netlify URL and `github.com/dd8173569/haunted-gift-atelier`
+  were confirmed in the raw HTML. Published timestamp
+  2026-11-22T07:04:39-05:00.
+- **YouTube video:** public; title and description correct (signed-out
+  fetch).
+- **Live site:** homepage, `/find`, `/atelier` and `/piece/TNZ-1056` all
+  return HTTP 200. The golden-1 journey through the live `/picks` page
+  (model param built with the repo's own `toModel` + `encodeModelParam`)
+  reproduces exactly: Pick 1 TBZ-1013 Third Eye tabeez ₹2,324, Pick 2
+  TNZ-1056 Blue Evil Eye bracelet ₹1,674, Pick 3 TBZ-1017 Swastik tabeez
+  ₹2,099, all with correct `/piece/[sku]` hrefs and correct reasons. The
+  Buy link for TNZ-1056 resolves HTTP 200 at
+  `https://www.tinytiaraa.com/product/Blue-Evil-Eye-Nazariya-–-925-Silver-Baby-Bracelet`
+  (0 redirects).
+- **GitHub repo:** public (`private: false`, default branch `main`),
+  `/.kiro` at root (agents, hooks, settings, specs, steering), MIT
+  license. All confirmed via the unauthenticated GitHub API.
+- **Repo state at gate time:** HEAD d5e8ac5, tree clean, local == remote.
+  `npm test` 1589/1589 in 63 files; typecheck clean; lint 0 errors + 1
+  known pre-existing AgeBand warning; `npm run build` passes (prebuild
+  CATALOG OK, 22 products, 2 width warnings; 30/30 static pages).
+- **Cover image:** drafted deterministically at
+  `~/workspace/your_files/haunted-gift-atelier-devpost-cover.png`
+  (1200×800, 3:2, following Devpost's help-center guidance for the
+  project-gallery thumbnail: JPG/PNG/GIF, 5 MB max, 3:2 ratio best). It
+  uses the exact TNZ-1056 catalog photo (unaltered, object-contain, never
+  cropped into the product), the "Haunted Gift Atelier" text wordmark, and
+  the app's pastel tokens (pearl #FAF7F2, blush #F7E8E4, champagne
+  #F5EDD8, gold #C9A227, plum #3D2C3A). No generated logo or watermark.
+  NOT uploaded; pending the builder's approval.
+- **Remaining open items** (full list in
+  `../hidden_files/phase10-quality-gate.md`): 4 persona calls (Tue 24 Nov
+  checkpoint; defaults ship), Netlify badge decision, T4.3 physical
+  calibration (human step), phone-width layout (human step), no CI,
+  fault-injection h1, Q-REL2 screen-reader check, student-prize label
+  note, cover image pending approval, and the Kiro usage write-up
+  visibility check (see Phase 9).
+- **Session 22 (Kiro, completed):** the registry outage that blocked M6,
+  Phase 7, Phase 8 and Phase 9 lifted — session 22 ran and completed in
+  Phase 10, writing the Phase 9 and Phase 10 sections of this log
+  (coordinator-verified by reading the diff; the coordinator then fixed
+  the Counts table directly). Totals are now **33 sessions, 32
+  completed**. Note: the submitted Devpost text says 32 sessions / 31
+  completed — accurate at submit time; this close-out session ran after
+  the submission and is recorded here only.
 
 ## Milestone 6 — open decisions for the builder
 - **Netlify badge:** leave the floating "Powered by Netlify" badge, or remove it — check the dashboard toggle (Project configuration > General > Powered by Netlify badge) to see whether it is usable on this team's Free plan; if locked, removal needs Personal ($9/month) or Pro ($20/month). No upgrade made.
