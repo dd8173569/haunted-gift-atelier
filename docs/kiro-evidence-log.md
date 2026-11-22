@@ -1429,6 +1429,79 @@ M6 started 22 Nov, ahead of schedule (planned 2 Dec), on the size-fix code as-is
   behaviour, recorded not chased). Carried gaps: 4 persona calls,
   phone-width layout, T4.3, fault-injection `h1`, Q-REL2.
 
+## Phase 8 — Demo video (22 Nov 2026)
+
+- **Session 22 attempted twice, both launches failed; the script, recording,
+  and edit were done directly by the coordinator.** Prompt at
+  `/tmp/kiro-prompts/session22-phase8-script.txt` (video script + Playwright
+  recording driver). Both launches failed at once with
+  `ModelRegistryUnavailableError` ("Kiro could not load the available
+  models", server error) — the first immediately, the retry after a 60 s
+  wait. The Kiro model service was unavailable for this window (same as M6
+  and Phase 7). Per the Phase 8 brief the work was done directly and is
+  recorded honestly as direct work — nothing in this section is presented
+  as Kiro output. The two failed launches are NOT counted as sessions
+  (established rule); the counts table is unchanged (32 sessions, 31
+  completed).
+- **Script (direct):** `../hidden_files/phase8-video-script.md`. Opens on
+  the trust problem (Phase 7 finding), then the golden-1 journey
+  (niece/nephew, 0–1, naming ceremony, under ₹2,500, 925 silver, any
+  symbols, surprise me → TBZ-1013 ₹2,324, TNZ-1056 ₹1,674, TBZ-1017
+  ₹2,099, in that order — picks and prices verified against
+  `data/catalog.json` and the live site). Closes with the live URL and
+  "Built with Kiro". 260 words of voiceover; every claim honest (fit
+  check is guidance not certification; sizes calibrated by card,
+  uncalibrated = approximate; prices as listed 21 Nov 2026).
+- **Recording (direct) — the deterministic screenshot-sequence fallback:**
+  no browser could run on this VM. Playwright's Chromium download was
+  approval-gated and the approval timed out (not retried, per the
+  standing rule); the bundled Meta Chromium refuses to start outside the
+  runtime's browser harness ("Hatch WebGL domain policy is required");
+  no other browser is installed and apt has no chromium/firefox
+  candidate; thum.io now requires a paid account and mShots returned an
+  error page. So the stills were captured from the LIVE site via the
+  Microlink screenshot API (free tier, no key) at 1920x1080 viewport,
+  2x DPR — real renders of the real site, never mocked: landing, `/find`
+  Q1, `/find` recipient card (golden-1 `m`), `/picks` (golden-1 `m`,
+  full page), `/piece/TBZ-1013` (golden-1 `m`, full page). Each shot is
+  a slow zoom/pan over the still (ffmpeg zoompan/crop), cut at the
+  voiceover cues — the route proven in the Faceless Shorts v2 rebuild.
+  The gift-wrap reveal and calibration slider need a tap, which stills
+  cannot show; the video shows the real controls ("Wrap this gift",
+  "Calibrate with a card") and never a faked reveal.
+- **Voiceover (direct):** Piper local/offline neural TTS, voice
+  `en_US-amy-medium`, length-scale 1.05. No ElevenLabs (free tier has no
+  commercial licence). No music at all. TTS pronunciation fix, verified
+  at the phoneme level: espeak reads "Kiro" as KY-roh (kˈaɪɹoʊ) and
+  "Tiaraa" as TY-ruh-rah (tˈaɪɚɹɑː), so the TTS input uses the
+  respellings "Kee-ro" (kˈiːɹˈoʊ) and "Tee-ah-rah" (tˈiːʲˈɑːɹˈɑː);
+  "Atelier" (ˌæɾəljˈe) and "tabeez" (tˈæbiːz) phonemize correctly as
+  written. Whisper re-transcription confirms "built with Kiro" is now
+  heard correctly (Whisper's remaining mangling of "Atelier"/"Tiaraa"/
+  "tabeez" is a transcription-vocabulary limit, not a TTS error).
+- **Badge handling:** the Netlify "Powered by Netlify" badge is injected
+  into the live site by the host (fixed bottom-right). It is a
+  third-party trademark, so it was covered on the source stills with a
+  rectangle in the page's own background colour (#FAF7F2, sampled) —
+  the badge sits over empty background on every shot used. The app
+  itself has no badge. No logo or watermark was added anywhere.
+- **Verification (coordinator, re-run directly):** ffprobe 1920x1080,
+  30 fps, H.264 + AAC, **117.41 s (1:57.4) — under the 3:00 cap**,
+  14.5 MB. Audio mean −20.0 dB, max −2.0 dB (levelled down from −0.1 dB
+  peaks with a video-copy pass). Frames inspected at 5 s intervals:
+  hero, Q1, recipient card, picks (correct order/prices/reasons), fit
+  check (incl. "No certifications are stated"), true-size viewer
+  (calibrate button, card reference, ruler), gift section (wrap + buy),
+  end card (URL + "Built with Kiro"). A/V sync checked by transcribing
+  t=58–70 s from the final file (S4 voiceover over the picks shot).
+- **Deliverables:** video at
+  `~/workspace/your_files/haunted-gift-atelier-demo-video.mp4` (NOT in
+  the repo); script `../hidden_files/phase8-video-script.md`; upload
+  instructions `../hidden_files/phase8-upload-instructions.md`; work
+  files (stills, voiceover, assembly script)
+  `../hidden_files/phase8-work/`. **YouTube upload NOT done — it needs
+  the user's Google account (Phase 9 or his step).**
+
 ## Milestone 6 — open decisions for the builder
 - **Netlify badge:** leave the floating "Powered by Netlify" badge, or remove it — check the dashboard toggle (Project configuration > General > Powered by Netlify badge) to see whether it is usable on this team's Free plan; if locked, removal needs Personal ($9/month) or Pro ($20/month). No upgrade made.
 - **Phone-width layout eyeball:** the builder's step (browser pass checked ~905px only).
